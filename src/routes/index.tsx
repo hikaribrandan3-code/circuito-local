@@ -50,17 +50,17 @@ function Index() {
               <br />
               Precios <span className="italic font-medium text-muted-foreground">de segunda.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-base md:text-lg text-white">
+            <p className="mt-5 max-w-xl text-base md:text-lg text-foreground">
               Comprá iPhones, gaming, cámaras y accesorios reacondicionados con condición verificada.
               O cotizá tu equipo en menos de 1 minuto.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 font-semibold glow-cyan">
+              <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-full">
                 <Link to="/catalogo">
                   Ver Catálogo <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="glass border-primary/40 hover:border-primary hover:bg-primary/10">
+              <Button asChild size="lg" variant="outline" className="rounded-full border-foreground/20 hover:border-foreground hover:bg-foreground/5">
                 <Link to="/vender">Cotizá tu equipo</Link>
               </Button>
             </div>
@@ -72,7 +72,7 @@ function Index() {
                 { icon: Recycle, label: "Tech circular" },
               ].map((b) => (
                 <div key={b.label} className="flex flex-col items-start gap-2">
-                  <b.icon className="h-5 w-5 text-primary" />
+                  <b.icon className="h-5 w-5 text-foreground" />
                   <span className="text-xs text-muted-foreground leading-tight">{b.label}</span>
                 </div>
               ))}

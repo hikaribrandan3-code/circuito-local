@@ -27,7 +27,7 @@ export function MobileNav() {
                 <div className="relative">
                   <Icon className="h-5 w-5" />
                   {it.to === "/carrito" && count > 0 && (
-                    <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[9px] font-bold text-accent-foreground">
+                    <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-foreground px-1 text-[9px] font-bold text-background">
                       {count}
                     </span>
                   )}

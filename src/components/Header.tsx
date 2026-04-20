@@ -26,11 +26,11 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full glass-strong border-b">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 lg:px-8">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent glow-cyan">
-            <Zap className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground">
+            <Zap className="h-5 w-5 text-background" strokeWidth={2.5} />
           </div>
-          <span className="font-display text-xl font-bold tracking-tight">
-            Circ<span className="text-gradient">uito</span>
+          <span className="font-display text-xl font-bold tracking-tight text-foreground">
+            Circuito
           </span>
         </Link>
 
@@ -64,14 +64,14 @@ export function Header() {
         </form>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Button asChild className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 font-semibold glow-cyan">
+          <Button asChild className="hidden sm:inline-flex bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-full">
             <Link to="/vender">Vender</Link>
           </Button>
           <Button variant="ghost" size="icon" asChild className="relative">
             <Link to="/carrito" aria-label="Carrito">
               <ShoppingCart className="h-5 w-5" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
+                <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1 text-[10px] font-bold text-background">
                   {count}
                 </span>
               )}
