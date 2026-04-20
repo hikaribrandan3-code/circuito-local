@@ -88,7 +88,7 @@ function RootComponent() {
         </footer>
         <MobileNav />
         <WhatsAppButton />
-        <Toaster theme="dark" position="top-center" />
+        <Toaster theme="light" position="top-center" />
       </div>
     </CartProvider>
   );

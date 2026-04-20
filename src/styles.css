@@ -38,54 +38,54 @@
 :root {
   --radius: 0.875rem;
 
-  /* Dark cyberpunk by default */
-  --background: oklch(0.14 0.02 260);
-  --foreground: oklch(0.97 0.01 260);
+  /* Apple-inspired light theme */
+  --background: oklch(0.985 0.002 260);
+  --foreground: oklch(0.18 0.01 260);
 
-  --card: oklch(0.18 0.025 260);
-  --card-foreground: oklch(0.97 0.01 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.01 260);
 
-  --popover: oklch(0.16 0.025 260);
-  --popover-foreground: oklch(0.97 0.01 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.01 260);
 
-  /* Electric cyan primary */
-  --primary: oklch(0.84 0.18 195);
-  --primary-foreground: oklch(0.14 0.02 260);
+  /* Black primary (Apple-style) */
+  --primary: oklch(0.18 0.01 260);
+  --primary-foreground: oklch(1 0 0);
 
-  /* Cyber yellow accent */
-  --accent: oklch(0.92 0.2 100);
-  --accent-foreground: oklch(0.14 0.02 260);
+  /* Subtle blue accent (San Francisco blue) */
+  --accent: oklch(0.62 0.18 250);
+  --accent-foreground: oklch(1 0 0);
 
-  --secondary: oklch(0.24 0.03 260);
-  --secondary-foreground: oklch(0.97 0.01 260);
+  --secondary: oklch(0.96 0.003 260);
+  --secondary-foreground: oklch(0.18 0.01 260);
 
-  --muted: oklch(0.22 0.025 260);
-  --muted-foreground: oklch(0.68 0.02 260);
+  --muted: oklch(0.96 0.003 260);
+  --muted-foreground: oklch(0.5 0.01 260);
 
-  --destructive: oklch(0.65 0.24 25);
-  --destructive-foreground: oklch(0.97 0.01 260);
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(1 0 0);
 
-  --success: oklch(0.78 0.18 145);
-  --success-foreground: oklch(0.14 0.02 260);
+  --success: oklch(0.62 0.16 145);
+  --success-foreground: oklch(1 0 0);
 
-  --border: oklch(0.28 0.025 260 / 60%);
-  --input: oklch(0.24 0.03 260);
-  --ring: oklch(0.84 0.18 195);
+  --border: oklch(0.9 0.005 260);
+  --input: oklch(0.97 0.003 260);
+  --ring: oklch(0.62 0.18 250);
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, oklch(0.84 0.18 195), oklch(0.92 0.2 100));
-  --gradient-radial: radial-gradient(circle at 30% 20%, oklch(0.84 0.18 195 / 25%), transparent 60%),
-                     radial-gradient(circle at 80% 80%, oklch(0.92 0.2 100 / 18%), transparent 55%);
-  --gradient-card: linear-gradient(160deg, oklch(0.22 0.03 260 / 80%), oklch(0.16 0.025 260 / 60%));
+  /* Gradients (subtle, neutral) */
+  --gradient-primary: linear-gradient(135deg, oklch(0.18 0.01 260), oklch(0.32 0.01 260));
+  --gradient-radial: radial-gradient(circle at 20% 0%, oklch(0.62 0.18 250 / 8%), transparent 55%),
+                     radial-gradient(circle at 90% 90%, oklch(0.18 0.01 260 / 6%), transparent 55%);
+  --gradient-card: linear-gradient(160deg, oklch(1 0 0 / 90%), oklch(0.97 0.003 260 / 70%));
 
-  /* Shadows / glows */
-  --shadow-glow-cyan: 0 0 40px -8px oklch(0.84 0.18 195 / 55%);
-  --shadow-glow-yellow: 0 0 40px -8px oklch(0.92 0.2 100 / 50%);
-  --shadow-elegant: 0 20px 60px -20px oklch(0 0 0 / 60%);
+  /* Shadows (soft, Apple-like) */
+  --shadow-glow-cyan: 0 10px 30px -10px oklch(0.18 0.01 260 / 22%);
+  --shadow-glow-yellow: 0 10px 30px -10px oklch(0.62 0.18 250 / 22%);
+  --shadow-elegant: 0 20px 60px -20px oklch(0.18 0.01 260 / 18%);
 
-  /* Glass */
-  --glass-bg: oklch(0.18 0.025 260 / 55%);
-  --glass-border: oklch(0.84 0.18 195 / 18%);
+  /* Glass (frosted white) */
+  --glass-bg: oklch(1 0 0 / 72%);
+  --glass-border: oklch(0.88 0.005 260 / 80%);
 }
 
 @layer base {
