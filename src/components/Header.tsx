@@ -26,11 +26,11 @@ export function Header() {
     <header className="sticky top-0 z-40 w-full glass-strong border-b">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 lg:px-8">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent glow-cyan">
-            <Zap className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-foreground">
+            <Zap className="h-5 w-5 text-background" strokeWidth={2.5} />
           </div>
-          <span className="font-display text-xl font-bold tracking-tight">
-            Circ<span className="text-gradient">uito</span>
+          <span className="font-display text-xl font-bold tracking-tight text-foreground">
+            Circuito
           </span>
         </Link>
 
