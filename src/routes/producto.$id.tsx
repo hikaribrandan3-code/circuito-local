@@ -72,7 +72,7 @@ function ProductPage() {
           <div className="mt-6 grid gap-2">
             <h3 className="text-sm font-semibold">Especificaciones</h3>
             <ul className="grid grid-cols-2 gap-2">
-              {product.specs.map((s) => (
+              {product.specs.map((s: string) => (
                 <li key={s} className="flex items-center gap-2 rounded-lg glass px-3 py-2 text-sm">
                   <Check className="h-4 w-4 text-primary shrink-0" /> {s}
                 </li>
