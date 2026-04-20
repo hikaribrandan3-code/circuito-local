@@ -64,14 +64,14 @@ export function Header() {
         </form>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Button asChild className="hidden sm:inline-flex bg-gradient-to-r from-primary to-accent text-primary-foreground hover:opacity-90 font-semibold glow-cyan">
+          <Button asChild className="hidden sm:inline-flex bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-full">
             <Link to="/vender">Vender</Link>
           </Button>
           <Button variant="ghost" size="icon" asChild className="relative">
             <Link to="/carrito" aria-label="Carrito">
               <ShoppingCart className="h-5 w-5" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">
+                <span className="absolute -top-0.5 -right-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground px-1 text-[10px] font-bold text-background">
                   {count}
                 </span>
               )}
