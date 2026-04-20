@@ -50,7 +50,7 @@ function Index() {
               <br />
               Precios <span className="italic font-medium text-muted-foreground">de segunda.</span>
             </h1>
-            <p className="mt-5 max-w-xl text-base md:text-lg text-muted-foreground">
+            <p className="mt-5 max-w-xl text-base md:text-lg text-white">
               Comprá iPhones, gaming, cámaras y accesorios reacondicionados con condición verificada.
               O cotizá tu equipo en menos de 1 minuto.
             </p>
