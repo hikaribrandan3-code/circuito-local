@@ -39,7 +39,7 @@ export const Route = createRootRoute({
           "Marketplace argentino de tech reacondicionada premium: iPhones, gaming, fotografía y accesorios. Comprá o vendé tu equipo.",
       },
       { name: "author", content: "Circuito" },
-      { property: "og:title", content: "Circuito — Tech reacondicionada premium" },
+      { property: "og:title", content: "Circuito — Tecnología premium, precios de segunda" },
       {
         property: "og:description",
         content:
@@ -47,6 +47,12 @@ export const Route = createRootRoute({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Circuito — Tecnología premium, precios de segunda" },
+      { name: "description", content: "Circuito Tech is an e-commerce marketplace for buying and selling refurbished electronics in Argentina." },
+      { property: "og:description", content: "Circuito Tech is an e-commerce marketplace for buying and selling refurbished electronics in Argentina." },
+      { name: "twitter:description", content: "Circuito Tech is an e-commerce marketplace for buying and selling refurbished electronics in Argentina." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/59424aba-26b7-4ba4-ab10-c8c1ddfdafff/id-preview-ec69c3a8--9b686c43-231f-4219-9bac-a618b92272ff.lovable.app-1776710531071.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/59424aba-26b7-4ba4-ab10-c8c1ddfdafff/id-preview-ec69c3a8--9b686c43-231f-4219-9bac-a618b92272ff.lovable.app-1776710531071.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
