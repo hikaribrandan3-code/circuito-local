@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,11 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, LogOut, Pencil, Trash2, Plus, Download, Package, Link as LinkIcon } from "lucide-react";
-
-export const Route = createFileRoute("/admin/")({
-  ssr: false,
-  component: AdminDashboard,
-});
 
 type Item = {
   id: string;
@@ -30,7 +25,7 @@ type Profile = {
   shop_url: string | null;
 };
 
-function AdminDashboard() {
+export default function AdminDashboard() {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
   const [userEmail, setUserEmail] = useState("");
@@ -45,7 +40,7 @@ function AdminDashboard() {
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return;
       if (!data.session) {
-        navigate({ to: "/admin/login", replace: true });
+        navigate("/admin/login", { replace: true });
         return;
       }
       setUserEmail(data.session.user.email ?? "");
@@ -111,7 +106,7 @@ function AdminDashboard() {
 
   async function logout() {
     await supabase.auth.signOut();
-    navigate({ to: "/admin/login", replace: true });
+    navigate("/admin/login", { replace: true });
   }
 
   function downloadQR() {
@@ -132,11 +127,10 @@ function AdminDashboard() {
     );
   }
 
-  const shopUrl = profile?.shop_url || (typeof window !== "undefined" ? window.location.origin : "");
+  const shopUrl = profile?.shop_url || window.location.origin;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 space-y-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Panel del Dueño</h1>
@@ -147,7 +141,6 @@ function AdminDashboard() {
         </Button>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardContent className="flex items-center gap-4 p-5">
@@ -171,7 +164,6 @@ function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Contact info */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Información de contacto</CardTitle>
@@ -193,7 +185,7 @@ function AdminDashboard() {
                 id="shop_url"
                 value={profile?.shop_url ?? ""}
                 onChange={(e) => setProfile({ ...(profile as Profile), shop_url: e.target.value })}
-                placeholder={typeof window !== "undefined" ? window.location.origin : ""}
+                placeholder={window.location.origin}
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
@@ -213,7 +205,6 @@ function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* Items */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Artículos</CardTitle>
@@ -298,7 +289,6 @@ function AdminDashboard() {
         </CardContent>
       </Card>
 
-      {/* QR */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Código QR de tu tienda</CardTitle>

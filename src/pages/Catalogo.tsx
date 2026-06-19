@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
@@ -11,35 +11,17 @@ import { Label } from "@/components/ui/label";
 import { CATEGORIES, PRODUCTS, type Category } from "@/lib/products";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-type Search = { q?: string; cat?: Category };
-
-export const Route = createFileRoute("/catalogo")({
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    q: typeof s.q === "string" ? s.q : undefined,
-    cat: (CATEGORIES.find((c) => c.id === s.cat)?.id as Category | undefined),
-  }),
-  head: () => ({
-    meta: [
-      { title: "Catálogo — ABS Store" },
-      {
-        name: "description",
-        content: "Explorá nuestra selección de flores, libros, mate, piezas argentinas y cajas curadas.",
-      },
-      { property: "og:title", content: "Catálogo — ABS Store" },
-      { property: "og:description", content: "Regalos seleccionados a mano en Argentina." },
-    ],
-  }),
-  component: Catalog,
-});
-
 const MAX_PRICE = 200000;
 
-function Catalog() {
+export default function Catalogo() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { q, cat } = Route.useSearch();
-  const [search, setSearch] = useState(q ?? "");
+  const qParam = searchParams.get("q") ?? "";
+  const catParam = searchParams.get("cat") ?? "";
+
+  const [search, setSearch] = useState(qParam);
   const [price, setPrice] = useState<[number, number]>([0, MAX_PRICE]);
-  const [cats, setCats] = useState<Category[]>(cat ? [cat] : []);
+  const [cats, setCats] = useState<Category[]>(catParam ? [catParam as Category] : []);
 
   const toggleCat = (c: Category) =>
     setCats((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
@@ -53,16 +35,28 @@ function Catalog() {
     });
   }, [search, cats, price]);
 
+  const updateSearch = (q: string) => {
+    setSearch(q);
+    const params: Record<string, string> = {};
+    if (q) params.q = q;
+    if (cats.length) params.cat = cats[0];
+    setSearchParams(params, { replace: true });
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setCats([]);
+    setPrice([0, MAX_PRICE]);
+    navigate("/catalogo", { replace: true });
+  };
+
   const Filters = (
     <div className="space-y-6">
       <div>
         <Label className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Buscar</Label>
         <Input
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            navigate({ to: "/catalogo", search: { q: e.target.value || undefined, cat } as never, replace: true });
-          }}
+          onChange={(e) => updateSearch(e.target.value)}
           placeholder="Flores, mate, libros..."
           className="mt-2 rounded-full"
         />
@@ -94,16 +88,7 @@ function Catalog() {
         </div>
       </div>
       {(cats.length > 0 || price[0] > 0 || price[1] < MAX_PRICE || search) && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            setSearch("");
-            setCats([]);
-            setPrice([0, MAX_PRICE]);
-            navigate({ to: "/catalogo", search: {} as never, replace: true });
-          }}
-        >
+        <Button variant="ghost" size="sm" onClick={clearFilters}>
           <X className="h-4 w-4 mr-1" /> Limpiar filtros
         </Button>
       )}

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,19 +6,7 @@ import { useCart } from "@/lib/cart";
 import { formatARS, STORE } from "@/lib/products";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/carrito")({
-  head: () => ({
-    meta: [
-      { title: "Carrito — ABS Store" },
-      { name: "description", content: "Revisá tu pedido y finalizá la compra." },
-      { property: "og:title", content: "Carrito — ABS Store" },
-      { property: "og:description", content: "Tu selección de regalos curados." },
-    ],
-  }),
-  component: Cart,
-});
-
-function Cart() {
+export default function Carrito() {
   const { items, setQty, remove, total, clear } = useCart();
 
   if (items.length === 0) {
@@ -63,11 +51,11 @@ function Cart() {
               transition={{ delay: i * 0.05 }}
               className="flex gap-4 rounded-2xl bg-card border border-border p-4"
             >
-              <Link to="/producto/$id" params={{ id: item.product.id }} className="shrink-0">
+              <Link to={`/producto/${item.product.id}`} className="shrink-0">
                 <img src={item.product.image} alt={item.product.title} className="h-24 w-24 rounded-xl object-cover" />
               </Link>
               <div className="flex flex-1 flex-col">
-                <Link to="/producto/$id" params={{ id: item.product.id }} className="hover:underline">
+                <Link to={`/producto/${item.product.id}`} className="hover:underline">
                   <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{item.product.brand}</p>
                   <h3 className="font-display text-lg font-medium leading-tight line-clamp-1">{item.product.title}</h3>
                 </Link>

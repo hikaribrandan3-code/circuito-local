@@ -1,28 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Flower2, BookOpen, Coffee, Heart, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { CATEGORIES, PRODUCTS, STORE } from "@/lib/products";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "ABS Store — Regalos curados con alma argentina" },
-      {
-        name: "description",
-        content:
-          "Flores frescas, libros, mate, piezas argentinas y cajas de regalo seleccionadas a mano. Envíos en el día.",
-      },
-      { property: "og:title", content: "ABS Store — Regalos curados" },
-      {
-        property: "og:description",
-        content: "Boutique argentina de regalos: flores, libros, mate y más.",
-      },
-    ],
-  }),
-  component: Index,
-});
 
 const CATEGORY_ICONS: Record<string, typeof Flower2> = {
   flores: Flower2,
@@ -40,7 +21,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
   regalos: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=700&q=80",
 };
 
-function Index() {
+export default function Index() {
   const featured = PRODUCTS.slice(0, 8);
 
   return (
@@ -127,8 +108,7 @@ function Index() {
                 transition={{ delay: i * 0.06 }}
               >
                 <Link
-                  to="/catalogo"
-                  search={{ cat: c.id } as never}
+                  to={`/catalogo?cat=${c.id}`}
                   className="group block relative aspect-[3/4] overflow-hidden rounded-2xl shadow-soft hover:shadow-elegant transition-all hover:-translate-y-1"
                 >
                   <img

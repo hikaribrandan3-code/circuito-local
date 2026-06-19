@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, ShoppingBag, Truck, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,37 +7,21 @@ import { formatARS, PRODUCTS, STORE } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/producto/$id")({
-  loader: ({ params }) => {
-    const product = PRODUCTS.find((p) => p.id === params.id);
-    if (!product) throw notFound();
-    return { product };
-  },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.product.title} — ABS Store` },
-          { name: "description", content: loaderData.product.description },
-          { property: "og:title", content: `${loaderData.product.title} — ABS Store` },
-          { property: "og:description", content: loaderData.product.description },
-          { property: "og:image", content: loaderData.product.image },
-          { name: "twitter:image", content: loaderData.product.image },
-        ]
-      : [],
-  }),
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-xl px-4 py-24 text-center">
-      <h1 className="font-display text-3xl">Producto no encontrado</h1>
-      <p className="mt-2 text-muted-foreground">Puede que ya no esté disponible.</p>
-      <Button asChild className="mt-6 rounded-full"><Link to="/catalogo">Volver al catálogo</Link></Button>
-    </div>
-  ),
-  component: ProductPage,
-});
-
-function ProductPage() {
-  const { product } = Route.useLoaderData();
+export default function Producto() {
+  const { id } = useParams<{ id: string }>();
   const { add } = useCart();
+
+  const product = PRODUCTS.find((p) => p.id === id);
+
+  if (!product) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-24 text-center">
+        <h1 className="font-display text-3xl">Producto no encontrado</h1>
+        <p className="mt-2 text-muted-foreground">Puede que ya no esté disponible.</p>
+        <Button asChild className="mt-6 rounded-full"><Link to="/catalogo">Volver al catálogo</Link></Button>
+      </div>
+    );
+  }
 
   const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
   const waText = encodeURIComponent(`Hola ${STORE.name}, me interesa el producto: ${product.title}`);

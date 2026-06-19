@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, ShoppingBag, Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export function Header() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate({ to: "/catalogo", search: { q: q || undefined } as never });
+    navigate(q ? `/catalogo?q=${encodeURIComponent(q)}` : "/catalogo");
   };
 
   return (
@@ -47,7 +47,7 @@ export function Header() {
             <DropdownMenuContent align="start" className="glass-strong">
               {CATEGORIES.map((c) => (
                 <DropdownMenuItem key={c.id} asChild>
-                  <Link to="/catalogo" search={{ cat: c.id } as never}>{c.label}</Link>
+                  <Link to={`/catalogo?cat=${c.id}`}>{c.label}</Link>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -91,7 +91,7 @@ export function Header() {
               <DropdownMenuItem asChild><Link to="/contacto">Contacto</Link></DropdownMenuItem>
               {CATEGORIES.map((c) => (
                 <DropdownMenuItem key={c.id} asChild>
-                  <Link to="/catalogo" search={{ cat: c.id } as never}>{c.label}</Link>
+                  <Link to={`/catalogo?cat=${c.id}`}>{c.label}</Link>
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>

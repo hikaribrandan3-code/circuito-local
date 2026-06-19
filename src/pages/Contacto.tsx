@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Phone, MessageCircle, Instagram, MapPin, Clock } from "lucide-react";
@@ -9,22 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { STORE } from "@/lib/products";
 
-export const Route = createFileRoute("/contacto")({
-  head: () => ({
-    meta: [
-      { title: "Contacto — ABS Store" },
-      {
-        name: "description",
-        content: "Escribinos para pedidos personalizados, envíos o consultas. Atención por WhatsApp en el día.",
-      },
-      { property: "og:title", content: "Contacto — ABS Store" },
-      { property: "og:description", content: "Pedidos a medida, envíos y consultas." },
-    ],
-  }),
-  component: Contact,
-});
-
-function Contact() {
+export default function Contacto() {
   const [form, setForm] = useState({ name: "", phone: "", message: "" });
 
   const submit = (e: React.FormEvent) => {

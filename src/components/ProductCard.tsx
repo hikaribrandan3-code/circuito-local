@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,8 +23,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.3) }}
     >
       <Link
-        to="/producto/$id"
-        params={{ id: product.id }}
+        to={`/producto/${product.id}`}
         className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-card border border-border/60 shadow-soft hover:shadow-elegant hover:-translate-y-1 transition-all"
       >
         <div className="relative aspect-[4/5] overflow-hidden bg-secondary">

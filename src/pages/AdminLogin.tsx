@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/admin/login")({
-  ssr: false,
-  component: LoginPage,
-});
-
-function LoginPage() {
+export default function AdminLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +16,7 @@ function LoginPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin", replace: true });
+      if (data.session) navigate("/admin", { replace: true });
     });
   }, [navigate]);
 
@@ -36,7 +31,7 @@ function LoginPage() {
       const { error } = await fn;
       if (error) throw error;
       toast.success(mode === "login" ? "Bienvenido" : "Cuenta creada");
-      navigate({ to: "/admin", replace: true });
+      navigate("/admin", { replace: true });
     } catch (err: any) {
       toast.error(err.message ?? "Error");
     } finally {
