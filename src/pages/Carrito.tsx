@@ -1,13 +1,21 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useCart } from "@/lib/cart";
 import { formatARS, STORE } from "@/lib/products";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export default function Carrito() {
   const { items, setQty, remove, total, clear } = useCart();
+  const [showModal, setShowModal] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [sending, setSending] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -24,17 +32,41 @@ export default function Carrito() {
     );
   }
 
-  const checkout = () => {
-    const lines = items
-      .map((i) => `• ${i.product.title} x${i.qty} — ${formatARS(i.product.price * i.qty)}`)
-      .join("\n");
+  async function checkout(e: React.FormEvent) {
+    e.preventDefault();
+    setSending(true);
+
+    const orderItems = items.map((i) => ({
+      id: i.product.id,
+      name: i.product.title,
+      qty: i.qty,
+      price: i.product.price,
+    }));
+
+    // Find owner's user_id (single owner shop — get first profile)
+    const { data: profiles } = await supabase.from("profiles").select("id").limit(1);
+    const ownerId = profiles?.[0]?.id;
+
+    if (ownerId) {
+      await supabase.from("orders").insert({
+        user_id: ownerId,
+        customer_name: name,
+        customer_phone: phone,
+        items: orderItems,
+        total,
+      });
+    }
+
+    const lines = items.map((i) => `• ${i.product.title} x${i.qty} — ${formatARS(i.product.price * i.qty)}`).join("\n");
     const text = encodeURIComponent(
-      `Hola ${STORE.name}, quiero hacer este pedido:\n\n${lines}\n\nTotal: ${formatARS(total)}`,
+      `Hola ${STORE.name}, soy ${name} (${phone}).\n\nQuiero hacer este pedido:\n\n${lines}\n\nTotal: ${formatARS(total)}`,
     );
     window.open(`https://wa.me/${STORE.whatsapp}?text=${text}`, "_blank");
-    toast.success("Abriendo WhatsApp", { description: "Te esperamos para coordinar el envío." });
+    toast.success("¡Pedido enviado!", { description: "Te esperamos para coordinar el envío." });
+    setSending(false);
+    setShowModal(false);
     setTimeout(() => clear(), 1500);
-  };
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 lg:px-8 py-10">
@@ -97,7 +129,7 @@ export default function Carrito() {
             <span className="font-display text-2xl font-semibold">{formatARS(total)}</span>
           </div>
           <Button
-            onClick={checkout}
+            onClick={() => setShowModal(true)}
             size="lg"
             className="mt-6 w-full bg-foreground text-background hover:bg-foreground/90 rounded-full font-medium"
           >
@@ -108,6 +140,64 @@ export default function Carrito() {
           </Button>
         </aside>
       </div>
+
+      {/* Checkout modal — captures name + phone */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm px-4"
+            onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 40 }}
+              className="w-full max-w-sm rounded-3xl bg-card border border-border p-6 shadow-elegant"
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="font-display text-2xl">Tu contacto</h2>
+                <button onClick={() => setShowModal(false)}>
+                  <X className="h-5 w-5 text-muted-foreground" />
+                </button>
+              </div>
+              <form onSubmit={checkout} className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Tu nombre</Label>
+                  <Input
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="¿Cómo te llamás?"
+                    className="rounded-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Tu WhatsApp</Label>
+                  <Input
+                    required
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+54 9 11 0000-0000"
+                    className="rounded-full"
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  disabled={sending}
+                  size="lg"
+                  className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-full font-medium"
+                >
+                  {sending ? "Enviando..." : "Confirmar y abrir WhatsApp"}
+                </Button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
