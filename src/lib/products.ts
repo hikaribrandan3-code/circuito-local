@@ -62,7 +62,7 @@ export const PRODUCTS: Product[] = [
     brand: "Editorial Sudamericana",
     category: "libros",
     price: 18500,
-    image: img("photo-1544947950-fa07a98d237f"),
+    image: img("photo-1507842217343-583f7270bfed"),
     specs: ["Tapa dura", "232 págs.", "Edición conmemorativa"],
     description:
       "Una de las obras maestras de la literatura argentina. Edición conmemorativa con tipografía cuidada.",
@@ -73,7 +73,7 @@ export const PRODUCTS: Product[] = [
     brand: "Alfaguara",
     category: "libros",
     price: 21000,
-    image: img("photo-1512820790803-83ca734da794"),
+    image: img("photo-1506880018603-83d5b814b5a6"),
     specs: ["Tapa blanda", "736 págs.", "Edición 60 aniversario"],
     description:
       "La novela que cambió la forma de leer. Edición especial 60 aniversario con prólogo nuevo.",
@@ -84,7 +84,7 @@ export const PRODUCTS: Product[] = [
     brand: "Clásicos Argentinos",
     category: "libros",
     price: 14000,
-    image: img("photo-1535905557558-afc4877a26fc"),
+    image: img("photo-1495446815901-a7297e633e8f"),
     specs: ["Tapa dura", "Ilustrado", "Bilingüe"],
     description:
       "El poema gauchesco argentino por excelencia. Edición ilustrada con notas al pie.",
@@ -117,7 +117,7 @@ export const PRODUCTS: Product[] = [
     brand: "Cooperativa Yerbatera",
     category: "mate",
     price: 8500,
-    image: img("photo-1576092768241-dec231879fc3"),
+    image: img("photo-1585523740635-c41c5e18c112"),
     specs: ["500g", "Orgánica certificada", "Sin palo"],
     description:
       "Yerba mate orgánica estacionada 24 meses. Sabor suave y aromático, sin agroquímicos.",
@@ -128,7 +128,7 @@ export const PRODUCTS: Product[] = [
     brand: "Argentina Oficial",
     category: "argentina",
     price: 145000,
-    image: img("photo-1542652694-40abf526446e"),
+    image: img("photo-1521572163474-6864f9cf17ab"),
     specs: ["Talles S a XXL", "Tela DryCool", "Edición campeón"],
     description:
       "Camiseta titular oficial de la Selección Argentina, edición tres estrellas. Para llevar la celeste y blanca con orgullo.",
@@ -139,7 +139,7 @@ export const PRODUCTS: Product[] = [
     brand: "Hecho en Argentina",
     category: "argentina",
     price: 28000,
-    image: img("photo-1589271755523-7ee2b1b1cd11"),
+    image: img("photo-1578985545062-69928b1d9587"),
     specs: ["90 x 150 cm", "Sol de Mayo bordado", "Tela premium"],
     description:
       "Bandera nacional con Sol de Mayo bordado a mano. Confeccionada en tela de alta resistencia.",
@@ -150,7 +150,7 @@ export const PRODUCTS: Product[] = [
     brand: "San Telmo Crafts",
     category: "argentina",
     price: 22000,
-    image: img("photo-1521369909029-2afed882baee"),
+    image: img("photo-1559056169-641406521c4f"),
     specs: ["Lana 100%", "Talle único", "Hecha a mano"],
     description:
       "Boina clásica inspirada en el barrio de San Telmo. Tejida a mano en lana natural.",
@@ -161,7 +161,7 @@ export const PRODUCTS: Product[] = [
     brand: "ABS Curated",
     category: "regalos",
     price: 78000,
-    image: img("photo-1513885535751-8b9238bd345a"),
+    image: img("photo-1509042239860-f550ce710b93"),
     specs: ["Alfajores", "Mate + yerba", "Libro de Borges", "Caja de madera"],
     description:
       "La introducción perfecta a la cultura argentina: alfajores artesanales, un mate, yerba premium y una edición de Borges. En caja de madera reutilizable.",
@@ -172,7 +172,7 @@ export const PRODUCTS: Product[] = [
     brand: "ABS Curated",
     category: "regalos",
     price: 56000,
-    image: img("photo-1556909114-44e3e9399a2d"),
+    image: img("photo-1585523740635-c41c5e18c112"),
     specs: ["Set de mate", "Yerba orgánica", "Bizcochitos", "Mantel"],
     description:
       "Todo lo necesario para una tarde inolvidable: mate completo, yerba orgánica, bizcochitos de grasa y un mantel de algodón.",
@@ -183,7 +183,7 @@ export const PRODUCTS: Product[] = [
     brand: "ABS Curated",
     category: "regalos",
     price: 92000,
-    image: img("photo-1549007994-cb92caebd54b"),
+    image: img("photo-1599599810694-b5ac4dd064fd"),
     specs: ["Ramo de rosas", "Chocolates", "Vela aromática", "Tarjeta personalizada"],
     description:
       "Un gesto pensado al detalle: rosas frescas, bombones de chocolate semi-amargo, vela aromática y tarjeta escrita a mano.",
