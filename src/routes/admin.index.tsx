@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, redirect } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,12 @@ import { toast } from "sonner";
 import { Loader2, LogOut, Pencil, Trash2, Plus, Download, Package, Link as LinkIcon } from "lucide-react";
 
 export const Route = createFileRoute("/admin/")({
-  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      throw redirect({ to: "/admin/login" });
+    }
+  },
   component: AdminDashboard,
 });
 
@@ -44,19 +49,17 @@ function AdminDashboard() {
     let mounted = true;
     supabase.auth.getSession().then(async ({ data }) => {
       if (!mounted) return;
-      if (!data.session) {
-        navigate({ to: "/admin/login", replace: true });
-        return;
+      if (data.session) {
+        setUserEmail(data.session.user.email ?? "");
+        setUserId(data.session.user.id);
+        await Promise.all([loadProfile(data.session.user.id), loadItems(data.session.user.id)]);
       }
-      setUserEmail(data.session.user.email ?? "");
-      setUserId(data.session.user.id);
-      await Promise.all([loadProfile(data.session.user.id), loadItems(data.session.user.id)]);
       setReady(true);
     });
     return () => {
       mounted = false;
     };
-  }, [navigate]);
+  }, []);
 
   async function loadProfile(uid: string) {
     const { data } = await supabase.from("profiles").select("*").eq("id", uid).maybeSingle();
