@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react";
 
 type Category = { id: string; name: string; description: string | null; display_order: number };
 type Item = { id: string; name: string; description: string | null; price: number; stock_status: string; category_id: string };
@@ -267,7 +267,7 @@ export default function ShopTab({ userId }: { userId: string }) {
                         </>
                       ) : (
                         <>
-                          <div className="text-2xl">📸</div>
+                          <ImageIcon className="h-6 w-6 text-muted-foreground" />
                           <p className="text-[10px] text-muted-foreground text-center">Foto {i + 1}</p>
                         </>
                       )}
