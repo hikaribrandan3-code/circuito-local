@@ -47,6 +47,7 @@ export default function App() {
               <div className="mt-2 flex flex-col gap-1">
                 <Link to="/catalogo" className="hover:text-foreground text-muted-foreground">Catálogo</Link>
                 <Link to="/contacto" className="hover:text-foreground text-muted-foreground">Contacto</Link>
+                <Link to="/admin/login" className="hover:text-foreground text-muted-foreground text-[11px] opacity-60 hover:opacity-100">Admin</Link>
               </div>
             </div>
           </div>
