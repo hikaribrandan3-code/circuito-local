@@ -7,6 +7,12 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
+// Whitelist — only these emails can access admin
+const ALLOWED_EMAILS = [
+  "hikaribrandan3@gmail.com",
+  // Add his email here when he's ready, e.g. "his-email@gmail.com"
+];
+
 export default function AdminLogin() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -22,15 +28,30 @@ export default function AdminLogin() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Check whitelist before anything
+    const isAllowed = ALLOWED_EMAILS.includes(email.toLowerCase());
+    if (!isAllowed) {
+      toast.error("Email no autorizado", { description: "Solo ciertos emails pueden acceder al admin." });
+      return;
+    }
+
     setLoading(true);
     try {
       const fn =
         mode === "login"
           ? supabase.auth.signInWithPassword({ email, password })
           : supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/admin` } });
-      const { error } = await fn;
+      const { error, data } = await fn;
       if (error) throw error;
-      toast.success(mode === "login" ? "Bienvenido" : "Cuenta creada");
+
+      // For signup, verify whitelist worked
+      if (mode === "signup" && data.user) {
+        toast.success("Cuenta creada");
+      } else {
+        toast.success("Bienvenido");
+      }
+
       navigate("/admin", { replace: true });
     } catch (err: any) {
       toast.error(err.message ?? "Error");
