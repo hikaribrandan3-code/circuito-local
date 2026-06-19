@@ -20,26 +20,25 @@ export const Route = createFileRoute("/catalogo")({
   }),
   head: () => ({
     meta: [
-      { title: "Catálogo — Circuito" },
+      { title: "Catálogo — ABS Store" },
       {
         name: "description",
-        content: "Explorá iPhones, PC gamer, cámaras y accesorios reacondicionados con condición verificada.",
+        content: "Explorá nuestra selección de flores, libros, mate, piezas argentinas y cajas curadas.",
       },
-      { property: "og:title", content: "Catálogo — Circuito" },
-      { property: "og:description", content: "Tech reacondicionada al mejor precio en Argentina." },
+      { property: "og:title", content: "Catálogo — ABS Store" },
+      { property: "og:description", content: "Regalos seleccionados a mano en Argentina." },
     ],
   }),
   component: Catalog,
 });
 
-const MAX_PRICE = 2500000;
+const MAX_PRICE = 200000;
 
 function Catalog() {
   const navigate = useNavigate();
   const { q, cat } = Route.useSearch();
   const [search, setSearch] = useState(q ?? "");
   const [price, setPrice] = useState<[number, number]>([0, MAX_PRICE]);
-  const [minCondition, setMinCondition] = useState(0);
   const [cats, setCats] = useState<Category[]>(cat ? [cat] : []);
 
   const toggleCat = (c: Category) =>
@@ -50,27 +49,26 @@ function Catalog() {
       if (search && !`${p.title} ${p.brand}`.toLowerCase().includes(search.toLowerCase())) return false;
       if (cats.length && !cats.includes(p.category)) return false;
       if (p.price < price[0] || p.price > price[1]) return false;
-      if (p.conditionScore < minCondition) return false;
       return true;
     });
-  }, [search, cats, price, minCondition]);
+  }, [search, cats, price]);
 
   const Filters = (
     <div className="space-y-6">
       <div>
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Buscar</Label>
+        <Label className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Buscar</Label>
         <Input
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
             navigate({ to: "/catalogo", search: { q: e.target.value || undefined, cat } as never, replace: true });
           }}
-          placeholder="iPhone, teclado..."
-          className="mt-2"
+          placeholder="Flores, mate, libros..."
+          className="mt-2 rounded-full"
         />
       </div>
       <div>
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Categoría</Label>
+        <Label className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Categoría</Label>
         <div className="mt-3 space-y-2">
           {CATEGORIES.map((c) => (
             <label key={c.id} className="flex items-center gap-2 cursor-pointer">
@@ -81,11 +79,11 @@ function Catalog() {
         </div>
       </div>
       <div>
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">Precio (ARS)</Label>
+        <Label className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Precio (ARS)</Label>
         <Slider
           min={0}
           max={MAX_PRICE}
-          step={50000}
+          step={2000}
           value={price}
           onValueChange={(v) => setPrice([v[0], v[1]] as [number, number])}
           className="mt-4"
@@ -95,20 +93,7 @@ function Catalog() {
           <span>${price[1].toLocaleString("es-AR")}</span>
         </div>
       </div>
-      <div>
-        <Label className="text-xs uppercase tracking-wider text-muted-foreground">
-          Condición mínima: {minCondition}/10
-        </Label>
-        <Slider
-          min={0}
-          max={10}
-          step={1}
-          value={[minCondition]}
-          onValueChange={(v) => setMinCondition(v[0])}
-          className="mt-4"
-        />
-      </div>
-      {(cats.length > 0 || minCondition > 0 || price[0] > 0 || price[1] < MAX_PRICE || search) && (
+      {(cats.length > 0 || price[0] > 0 || price[1] < MAX_PRICE || search) && (
         <Button
           variant="ghost"
           size="sm"
@@ -116,7 +101,6 @@ function Catalog() {
             setSearch("");
             setCats([]);
             setPrice([0, MAX_PRICE]);
-            setMinCondition(0);
             navigate({ to: "/catalogo", search: {} as never, replace: true });
           }}
         >
@@ -127,22 +111,23 @@ function Catalog() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 lg:px-8 py-8">
+    <div className="mx-auto max-w-7xl px-4 lg:px-8 py-10">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="font-display text-3xl md:text-4xl font-bold">Catálogo</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {filtered.length} {filtered.length === 1 ? "producto" : "productos"} disponibles
+        <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Tienda</span>
+        <h1 className="font-display text-4xl md:text-5xl mt-1">Catálogo</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {filtered.length} {filtered.length === 1 ? "regalo disponible" : "regalos disponibles"}
         </p>
       </motion.div>
 
-      <div className="mt-6 grid lg:grid-cols-[260px_1fr] gap-8">
-        <aside className="hidden lg:block sticky top-24 self-start rounded-2xl glass p-5">{Filters}</aside>
+      <div className="mt-8 grid lg:grid-cols-[260px_1fr] gap-8">
+        <aside className="hidden lg:block sticky top-24 self-start rounded-2xl bg-card border border-border p-5 shadow-soft">{Filters}</aside>
 
         <div>
           <div className="lg:hidden mb-4">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" className="glass">
+                <Button variant="outline" className="rounded-full">
                   <SlidersHorizontal className="h-4 w-4 mr-2" />
                   Filtros
                 </Button>
@@ -157,8 +142,8 @@ function Catalog() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="rounded-2xl glass p-12 text-center">
-              <p className="text-muted-foreground">No encontramos productos con esos filtros.</p>
+            <div className="rounded-2xl bg-card border border-border p-12 text-center">
+              <p className="text-muted-foreground">No encontramos regalos con esos filtros.</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
