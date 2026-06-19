@@ -136,7 +136,7 @@ export default function Producto() {
             <div className="rounded-xl bg-card border border-border p-4">
               <Truck className="h-5 w-5" />
               <p className="mt-2 text-sm font-medium">Envíos en el día</p>
-              <p className="text-xs text-muted-foreground">CABA y GBA</p>
+              <p className="text-xs text-muted-foreground">Córdoba y zona</p>
             </div>
           </div>
         </motion.div>

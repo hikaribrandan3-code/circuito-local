@@ -107,7 +107,7 @@ export default function Contacto() {
             <MapPin className="h-6 w-6 mt-0.5" />
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Envíos</p>
-              <p className="text-sm mt-1">CABA y GBA en el día</p>
+              <p className="text-sm mt-1">Córdoba y zona en el día</p>
               <p className="text-sm">Interior del país: 48 a 72 hs</p>
             </div>
           </div>

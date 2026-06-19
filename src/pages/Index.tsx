@@ -173,7 +173,7 @@ export default function Index() {
               {[
                 "Curaduría personal según el destinatario",
                 "Tarjetas escritas a mano sin cargo",
-                "Envío en el día en CABA y GBA",
+                "Envío en Córdoba y zona",
                 "Empaque elegante listo para regalar",
               ].map((t) => (
                 <li key={t} className="flex items-center gap-3 rounded-xl bg-background/5 border border-background/10 p-4">
