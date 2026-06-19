@@ -14,11 +14,11 @@ const CATEGORY_ICONS: Record<string, typeof Flower2> = {
 };
 
 const CATEGORY_IMAGES: Record<string, string> = {
-  flores: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=700&q=80",
-  libros: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=700&q=80",
-  mate: "https://images.unsplash.com/photo-1605118898735-43ddc3b8d40c?auto=format&fit=crop&w=700&q=80",
-  argentina: "https://images.unsplash.com/photo-1589271755523-7ee2b1b1cd11?auto=format&fit=crop&w=700&q=80",
-  regalos: "https://images.unsplash.com/photo-1513885535751-8b9238bd345a?auto=format&fit=crop&w=700&q=80",
+  flores: "https://images.unsplash.com/photo-1552032543-dc66dfd0eca5?auto=format&fit=crop&w=700&q=80",
+  libros: "https://images.unsplash.com/photo-1507842217343-583f7270bfed?auto=format&fit=crop&w=700&q=80",
+  mate: "https://images.unsplash.com/photo-1585523740635-c41c5e18c112?auto=format&fit=crop&w=700&q=80",
+  argentina: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=700&q=80",
+  regalos: "https://images.unsplash.com/photo-1559056169-641406521c4f?auto=format&fit=crop&w=700&q=80",
 };
 
 export default function Index() {
