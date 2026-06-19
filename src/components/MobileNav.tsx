@@ -1,12 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { Home, LayoutGrid, Tag, ShoppingCart } from "lucide-react";
+import { Home, LayoutGrid, MessageCircle, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart";
 
 const items = [
   { to: "/", label: "Inicio", icon: Home },
   { to: "/catalogo", label: "Catálogo", icon: LayoutGrid },
-  { to: "/vender", label: "Vender", icon: Tag },
-  { to: "/carrito", label: "Carrito", icon: ShoppingCart },
+  { to: "/contacto", label: "Contacto", icon: MessageCircle },
+  { to: "/carrito", label: "Carrito", icon: ShoppingBag },
 ] as const;
 
 export function MobileNav() {
@@ -21,7 +21,7 @@ export function MobileNav() {
               <Link
                 to={it.to}
                 className="flex flex-col items-center gap-1 py-2.5 text-[11px] text-muted-foreground"
-                activeProps={{ className: "flex flex-col items-center gap-1 py-2.5 text-[11px] text-primary" }}
+                activeProps={{ className: "flex flex-col items-center gap-1 py-2.5 text-[11px] text-foreground" }}
                 activeOptions={{ exact: it.to === "/" }}
               >
                 <div className="relative">
