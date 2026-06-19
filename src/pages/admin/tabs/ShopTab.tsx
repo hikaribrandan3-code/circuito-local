@@ -226,7 +226,16 @@ export default function ShopTab({ userId }: { userId: string }) {
                 </div>
                 <div className="space-y-2">
                   <Label>Precio (ARS)</Label>
-                  <Input type="number" min="0" required value={editingItem.price ?? 0} onChange={(e) => setEditingItem({ ...editingItem, price: parseInt(e.target.value) || 0 })} className="rounded-full" />
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    required
+                    value={editingItem.price === 0 ? "" : (editingItem.price ?? "")}
+                    onChange={(e) => setEditingItem({ ...editingItem, price: parseInt(e.target.value) || 0 })}
+                    onFocus={(e) => e.target.select()}
+                    className="rounded-full"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Categoría</Label>
@@ -246,19 +255,51 @@ export default function ShopTab({ userId }: { userId: string }) {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Fotos (hasta 3 URLs)</Label>
-                {itemImageUrls.map((url, i) => (
-                  <div key={i} className="flex gap-2 items-center">
-                    <Input
-                      value={url}
-                      onChange={(e) => { const n = [...itemImageUrls]; n[i] = e.target.value; setItemImageUrls(n); }}
-                      placeholder={`Foto ${i + 1} — URL de imagen`}
-                      className="rounded-full text-sm"
-                    />
-                    {url && <img src={url} alt="" className="h-10 w-10 rounded-lg object-cover border border-border shrink-0" />}
-                  </div>
-                ))}
+              <div className="space-y-3">
+                <Label>Fotos (hasta 3 archivos)</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[0, 1, 2].map((i) => (
+                    <label key={i} className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border p-3 cursor-pointer hover:border-foreground/50 transition-colors group">
+                      {itemImageUrls[i] ? (
+                        <>
+                          <img src={itemImageUrls[i]} alt="" className="h-20 w-20 rounded-lg object-cover border border-border" />
+                          <p className="text-[10px] text-muted-foreground group-hover:text-foreground">Cambiar</p>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-2xl">📸</div>
+                          <p className="text-[10px] text-muted-foreground text-center">Foto {i + 1}</p>
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          try {
+                            const timestamp = Date.now();
+                            const filename = `item-${editingItem.id || timestamp}-${i}-${file.name}`;
+                            const { data, error } = await supabase.storage
+                              .from("item-images")
+                              .upload(filename, file, { upsert: true });
+                            if (error) throw error;
+                            const { data: publicUrl } = supabase.storage
+                              .from("item-images")
+                              .getPublicUrl(filename);
+                            const n = [...itemImageUrls];
+                            n[i] = publicUrl.publicUrl;
+                            setItemImageUrls(n);
+                            toast.success(`Foto ${i + 1} subida`);
+                          } catch (err: any) {
+                            toast.error(`Error subiendo foto: ${err.message}`);
+                          }
+                        }}
+                      />
+                    </label>
+                  ))}
+                </div>
               </div>
 
               <div className="flex gap-2">
