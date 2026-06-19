@@ -11,7 +11,7 @@ export const CATEGORIES: { id: Category; label: string; description: string }[] 
 export type Product = {
   id: string;
   title: string;
-  brand: string; // small label above title (e.g. "Hecho en Buenos Aires")
+  brand: string; // small label above title (e.g. "Hecho en Córdoba Capital")
   category: Category;
   price: number; // ARS
   image: string;
@@ -157,14 +157,14 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: "caja-bienvenido-buenos-aires",
-    title: "Caja Bienvenido a Buenos Aires",
+    title: "Caja Bienvenido a Córdoba Capital",
     brand: "ABS Curated",
     category: "regalos",
     price: 78000,
     image: img("photo-1509042239860-f550ce710b93"),
     specs: ["Alfajores", "Mate + yerba", "Libro de Borges", "Caja de madera"],
     description:
-      "La introducción perfecta a la cultura argentina: alfajores artesanales, un mate, yerba premium y una edición de Borges. En caja de madera reutilizable.",
+      "La introducción perfecta a la cultura cordobesa: alfajores artesanales, un mate, yerba premium y una edición de Borges. En caja de madera reutilizable.",
   },
   {
     id: "caja-tarde-de-mate",

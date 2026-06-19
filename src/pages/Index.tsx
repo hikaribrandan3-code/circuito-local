@@ -36,7 +36,7 @@ export default function Index() {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs">
               <span className="h-2 w-2 rounded-full bg-celeste" />
-              <span className="text-muted-foreground">Boutique argentina · Envíos en el día</span>
+              <span className="text-muted-foreground">Boutique de Córdoba Capital · Envíos en el día</span>
             </span>
             <h1 className="mt-5 font-display text-5xl sm:text-6xl md:text-7xl leading-[1.02] tracking-tight">
               Regalos <span className="serif-italic text-muted-foreground">curados</span>
