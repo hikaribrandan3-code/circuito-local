@@ -1,6 +1,7 @@
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Check, ShoppingBag, Truck, Heart } from "lucide-react";
+import { ArrowLeft, Check, ShoppingBag, Truck, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { formatARS, PRODUCTS, STORE } from "@/lib/products";
@@ -10,8 +11,10 @@ import { toast } from "sonner";
 export default function Producto() {
   const { id } = useParams<{ id: string }>();
   const { add } = useCart();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const product = PRODUCTS.find((p) => p.id === id);
+  const images = [product?.image].filter(Boolean) as string[];
 
   if (!product) {
     return (
@@ -37,9 +40,55 @@ export default function Producto() {
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-elegant"
+          className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-elegant group"
         >
-          <img src={product.image} alt={product.title} className="h-full w-full object-cover" />
+          <img
+            key={currentImageIndex}
+            src={images[currentImageIndex]}
+            alt={product.title}
+            className="h-full w-full object-cover transition-transform duration-500"
+          />
+
+          {/* Image counter */}
+          {images.length > 1 && (
+            <div className="absolute top-4 right-4 rounded-full bg-foreground/80 text-background text-sm px-3 py-1.5 font-medium">
+              {currentImageIndex + 1}/{images.length}
+            </div>
+          )}
+
+          {/* Navigation arrows */}
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={() => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)}
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-background/60 hover:bg-background text-foreground p-2 transition-all opacity-0 group-hover:opacity-100"
+                aria-label="Foto anterior"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setCurrentImageIndex((prev) => (prev + 1) % images.length)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-background/60 hover:bg-background text-foreground p-2 transition-all opacity-0 group-hover:opacity-100"
+                aria-label="Foto siguiente"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
+          )}
+
+          {/* Thumbnail dots */}
+          {images.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentImageIndex(i)}
+                  className={`h-2 rounded-full transition-all ${i === currentImageIndex ? "bg-background w-6" : "bg-background/50 w-2"}`}
+                  aria-label={`Ir a foto ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
