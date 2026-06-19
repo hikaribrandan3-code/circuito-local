@@ -199,7 +199,8 @@ export const formatARS = (n: number) =>
 
 export const STORE = {
   name: "ABS Store",
-  tagline: "Regalos curados para personas con buen gusto",
+  tagline: "Gift shop de regalos curados en Córdoba Capital",
   phone: "+54 9 3354 935 4752",
   whatsapp: "5493354935475", // digits only for wa.me
+  instagram: "@absstore",
 };

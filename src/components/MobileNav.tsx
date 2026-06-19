@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { to: "/", label: "Inicio", icon: Home, exact: true },
   { to: "/catalogo", label: "Catálogo", icon: LayoutGrid, exact: false },
   { to: "/contacto", label: "Contacto", icon: MessageCircle, exact: false },
-  { to: "/carrito", label: "Carrito", icon: ShoppingBag, exact: false },
+  { to: "/carrito", label: "Cart", icon: ShoppingBag, exact: false },
 ] as const;
 
 export function MobileNav() {

@@ -17,7 +17,7 @@ export function ProductCard({ product, index = 0, images }: { product: Product; 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     add(product);
-    toast.success("Agregado al carrito", { description: product.title });
+    toast.success("Added to cart", { description: product.title });
   };
 
   const nextImage = (e: React.MouseEvent) => {
@@ -87,7 +87,7 @@ export function ProductCard({ product, index = 0, images }: { product: Product; 
               size="icon"
               onClick={handleAdd}
               className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/90 active:scale-95"
-              aria-label="Agregar al carrito"
+              aria-label="Add to cart"
             >
               <Plus className="h-4 w-4" />
             </Button>

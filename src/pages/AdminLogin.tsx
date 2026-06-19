@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 // Whitelist — only these emails can access admin
 const ALLOWED_EMAILS = [
   "hikaribrandan3@gmail.com",
-  // Add his email here when he's ready, e.g. "his-email@gmail.com"
+  "owner@absstore.local", // Placeholder — owner adds their email after signup
 ];
 
 export default function AdminLogin() {

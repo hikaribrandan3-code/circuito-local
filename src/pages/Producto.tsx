@@ -114,11 +114,11 @@ export default function Producto() {
               size="lg"
               onClick={() => {
                 add(product);
-                toast.success("Agregado al carrito", { description: product.title });
+                toast.success("Added to cart", { description: product.title });
               }}
               className="bg-foreground text-background hover:bg-foreground/90 font-medium rounded-full"
             >
-              <ShoppingBag className="mr-1 h-4 w-4" /> Agregar al carrito
+              <ShoppingBag className="mr-1 h-4 w-4" /> Add to cart
             </Button>
             <Button asChild size="lg" variant="outline" className="rounded-full">
               <a href={`https://wa.me/${STORE.whatsapp}?text=${waText}`} target="_blank" rel="noreferrer">

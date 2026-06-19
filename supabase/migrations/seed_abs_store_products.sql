@@ -2,6 +2,9 @@
 -- Run this AFTER signing up in admin
 -- Replace 'YOUR_USER_ID' with your actual user ID from Supabase Auth
 
+-- Add instagram_handle column to profiles if it doesn't exist
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS instagram_handle TEXT;
+
 -- Insert categories
 INSERT INTO categories (id, user_id, name, description, display_order) VALUES
 ('cat-flores', 'YOUR_USER_ID', 'Flores', 'Ramos frescos y arreglos artesanales', 0),
