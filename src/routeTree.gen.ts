@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ContactoRouteImport } from './routes/contacto'
 import { Route as CatalogoRouteImport } from './routes/catalogo'
 import { Route as CarritoRouteImport } from './routes/carrito'
 import { Route as IndexRouteImport } from './routes/index'
@@ -16,6 +17,11 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProductoIdRouteImport } from './routes/producto.$id'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
+const ContactoRoute = ContactoRouteImport.update({
+  id: '/contacto',
+  path: '/contacto',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CatalogoRoute = CatalogoRouteImport.update({
   id: '/catalogo',
   path: '/catalogo',
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
+  '/contacto': typeof ContactoRoute
   '/admin/login': typeof AdminLoginRoute
   '/producto/$id': typeof ProductoIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
+  '/contacto': typeof ContactoRoute
   '/admin/login': typeof AdminLoginRoute
   '/producto/$id': typeof ProductoIdRoute
   '/admin': typeof AdminIndexRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/carrito': typeof CarritoRoute
   '/catalogo': typeof CatalogoRoute
+  '/contacto': typeof ContactoRoute
   '/admin/login': typeof AdminLoginRoute
   '/producto/$id': typeof ProductoIdRoute
   '/admin/': typeof AdminIndexRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/carrito'
     | '/catalogo'
+    | '/contacto'
     | '/admin/login'
     | '/producto/$id'
     | '/admin/'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/carrito'
     | '/catalogo'
+    | '/contacto'
     | '/admin/login'
     | '/producto/$id'
     | '/admin'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/carrito'
     | '/catalogo'
+    | '/contacto'
     | '/admin/login'
     | '/producto/$id'
     | '/admin/'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CarritoRoute: typeof CarritoRoute
   CatalogoRoute: typeof CatalogoRoute
+  ContactoRoute: typeof ContactoRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ProductoIdRoute: typeof ProductoIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -110,6 +123,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/contacto': {
+      id: '/contacto'
+      path: '/contacto'
+      fullPath: '/contacto'
+      preLoaderRoute: typeof ContactoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/catalogo': {
       id: '/catalogo'
       path: '/catalogo'
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CarritoRoute: CarritoRoute,
   CatalogoRoute: CatalogoRoute,
+  ContactoRoute: ContactoRoute,
   AdminLoginRoute: AdminLoginRoute,
   ProductoIdRoute: ProductoIdRoute,
   AdminIndexRoute: AdminIndexRoute,
