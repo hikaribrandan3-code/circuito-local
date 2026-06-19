@@ -104,16 +104,46 @@ export default function InfoTab({ userId }: { userId: string }) {
           />
         </div>
         <div className="space-y-2">
-          <Label>Logo (URL de imagen)</Label>
-          <Input
-            value={profile.logo_url ?? ""}
-            onChange={(e) => set("logo_url", e.target.value)}
-            placeholder="https://..."
-            className="rounded-full"
-          />
-          {profile.logo_url && (
-            <img src={profile.logo_url} alt="Logo" className="h-16 w-16 rounded-xl object-cover border border-border" />
-          )}
+          <Label>Logo (imagen)</Label>
+          <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border p-4 cursor-pointer hover:border-foreground/50 transition-colors group">
+            {profile.logo_url ? (
+              <>
+                <img src={profile.logo_url} alt="Logo" className="h-16 w-16 rounded-lg object-cover border border-border" />
+                <p className="text-[10px] text-muted-foreground group-hover:text-foreground">Cambiar logo</p>
+              </>
+            ) : (
+              <>
+                <svg className="h-6 w-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p className="text-[10px] text-muted-foreground text-center">Subir logo</p>
+              </>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  const timestamp = Date.now();
+                  const filename = `logo-${timestamp}-${file.name}`;
+                  const { data, error } = await supabase.storage
+                    .from("item-images")
+                    .upload(filename, file, { upsert: true });
+                  if (error) throw error;
+                  const { data: publicUrl } = supabase.storage
+                    .from("item-images")
+                    .getPublicUrl(filename);
+                  set("logo_url", publicUrl.publicUrl);
+                  toast.success("Logo subido");
+                } catch (err: any) {
+                  toast.error(`Error: ${err.message}`);
+                }
+              }}
+            />
+          </label>
         </div>
         <Button type="submit" disabled={saving} className="w-full rounded-full bg-foreground text-background hover:bg-foreground/90">
           <Save className="h-4 w-4 mr-2" /> {saving ? "Guardando..." : "Guardar cambios"}
