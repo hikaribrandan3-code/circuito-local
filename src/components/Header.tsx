@@ -25,12 +25,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full glass-strong border-b">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 lg:px-8">
-        <Link to="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground">
-            <span className="font-display text-base font-semibold text-background leading-none">A</span>
-          </div>
+        <Link to="/" className="flex items-center gap-3 shrink-0">
+          <img src="/logo.svg" alt="ASB Store" className="h-10 w-10 object-contain" />
           <div className="flex flex-col leading-none">
-            <span className="font-display text-xl font-semibold tracking-tight text-foreground">
+            <span className="font-display text-2xl font-semibold tracking-tight text-foreground">
               {STORE.name}
             </span>
           </div>
