@@ -52,7 +52,7 @@ const getImageForCategory = (category: DbCategory): string => {
   return "/images/default-category.jpg";
 };
 
-const MAX_PRICE = 200000;
+const MAX_PRICE = 1000000;
 
 export default function Catalogo() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -113,7 +113,6 @@ export default function Catalogo() {
             };
           });
 
-          console.log("Products loaded:", productList.map(p => ({ title: p.title, category: p.category, catName: p.categoryName })));
           setProducts(productList);
         }
       } catch (err) {
@@ -139,7 +138,6 @@ export default function Catalogo() {
     // Filter by category
     if (selectedCats && selectedCats.length > 0) {
       result = result.filter((p) => selectedCats.includes(p.category));
-      console.log(`Filtered by categories ${selectedCats}: ${result.length} products found`, result.map(p => p.title));
     }
 
     // Filter by search
@@ -312,31 +310,28 @@ export default function Catalogo() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-              {filtered.map((p, i) => {
-                console.log(`Rendering product ${i + 1}/${filtered.length}: ${p.title} (ID: ${p.id}, Image: ${p.image?.substring(0, 50)}...)`);
-                return (
-                  <div
-                    key={p.id}
-                    onClick={() => navigate(`/producto/${p.id}`)}
-                    className="group cursor-pointer rounded-2xl overflow-hidden bg-card border border-border shadow-soft hover:shadow-lg transition-all"
-                  >
-                    <div className="aspect-square overflow-hidden bg-secondary">
-                      <img
-                        src={p.image}
-                        alt={p.title}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </div>
-                    <div className="p-3">
-                      <p className="text-xs text-muted-foreground">{p.categoryName}</p>
-                      <p className="font-display text-sm font-semibold mt-1 line-clamp-2">{p.title}</p>
-                      <p className="font-display text-base font-bold text-foreground mt-2">
-                        ${p.price.toLocaleString("es-AR")}
-                      </p>
-                    </div>
+              {filtered.map((p) => (
+                <div
+                  key={p.id}
+                  onClick={() => navigate(`/producto/${p.id}`)}
+                  className="group cursor-pointer rounded-2xl overflow-hidden bg-card border border-border shadow-soft hover:shadow-lg transition-all"
+                >
+                  <div className="aspect-square overflow-hidden bg-secondary">
+                    <img
+                      src={p.image}
+                      alt={p.title}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
                   </div>
-                );
-              })}
+                  <div className="p-3">
+                    <p className="text-xs text-muted-foreground">{p.categoryName}</p>
+                    <p className="font-display text-sm font-semibold mt-1 line-clamp-2">{p.title}</p>
+                    <p className="font-display text-base font-bold text-foreground mt-2">
+                      ${p.price.toLocaleString("es-AR")}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
