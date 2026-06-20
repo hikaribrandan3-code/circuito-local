@@ -33,9 +33,6 @@ export function Header() {
             <span className="font-display text-xl font-semibold tracking-tight text-foreground">
               {STORE.name}
             </span>
-            <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Regalos curados
-            </span>
           </div>
         </Link>
 
