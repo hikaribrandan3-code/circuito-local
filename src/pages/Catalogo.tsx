@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-type DbCategory = { id: string; name: string; description: string | null; display_order: number };
+type DbCategory = { id: string; name: string; description: string | null; display_order: number; image_url?: string | null };
 type DbItem = { id: string; name: string; description: string | null; price: number; category_id: string; image_url: string | null };
 type DbItemImage = { id: string; item_id: string; image_url: string; display_order: number };
 
@@ -97,14 +97,14 @@ export default function Catalogo() {
 
           setProducts(productList);
 
-          // Build category images from first product in each category
+          // Build category images from category's own image_url in Supabase
           const catImages: Record<string, string> = {};
-          catsData?.forEach((cat) => {
-            const firstProductInCat = productList.find((p) => p.category === cat.id);
-            if (firstProductInCat) {
-              catImages[cat.id] = firstProductInCat.image;
+          catsData?.forEach((cat: DbCategory) => {
+            // Use category's own image_url from Supabase if available
+            if (cat.image_url) {
+              catImages[cat.id] = cat.image_url;
             } else {
-              // Fallback to static image if no product in category
+              // Fallback to static image if category has no image
               catImages[cat.id] = CATEGORY_IMAGES[cat.id] || "";
             }
           });
