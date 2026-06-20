@@ -29,7 +29,7 @@ export const PRODUCTS: Product[] = [
     brand: "Floristería ASB",
     category: "flores",
     price: 38000,
-    image: img("photo-1561181286-d3fee7d55364"),
+    image: img("photo-1550008319-5ef12c9b8c00"),
     specs: ["12 peonías", "Eucalipto", "Papel kraft", "Envío en el día"],
     description:
       "Ramo artesanal de peonías rosadas con eucalipto fresco. Atado a mano y envuelto en papel kraft con cinta de lino.",
@@ -40,7 +40,7 @@ export const PRODUCTS: Product[] = [
     brand: "Floristería ASB",
     category: "flores",
     price: 22000,
-    image: img("photo-1597848212624-a19eb35e2651"),
+    image: img("photo-1519763185298-1b994cf3077d"),
     specs: ["8 girasoles", "Frescos del día", "Envoltorio kraft"],
     description:
       "Girasoles luminosos seleccionados a mano. Ideales para alegrar cualquier ambiente.",
@@ -51,7 +51,7 @@ export const PRODUCTS: Product[] = [
     brand: "Floristería ASB",
     category: "flores",
     price: 52000,
-    image: img("photo-1487530811176-3780de880c2d"),
+    image: img("photo-1550881706-8cc8989b8ccb"),
     specs: ["Mix de estación", "Caja de madera", "Para regalo"],
     description:
       "Composición floral exuberante en caja de madera natural. Una experiencia visual y aromática.",
@@ -62,7 +62,7 @@ export const PRODUCTS: Product[] = [
     brand: "Editorial Sudamericana",
     category: "libros",
     price: 18500,
-    image: img("photo-1507842217343-583f7270bfed"),
+    image: img("photo-1544716278-ca5e3f4abd8c"),
     specs: ["Tapa dura", "232 págs.", "Edición conmemorativa"],
     description:
       "Una de las obras maestras de la literatura argentina. Edición conmemorativa con tipografía cuidada.",
@@ -73,7 +73,7 @@ export const PRODUCTS: Product[] = [
     brand: "Alfaguara",
     category: "libros",
     price: 21000,
-    image: img("photo-1506880018603-83d5b814b5a6"),
+    image: img("photo-1507842217343-583f7270bfed"),
     specs: ["Tapa blanda", "736 págs.", "Edición 60 aniversario"],
     description:
       "La novela que cambió la forma de leer. Edición especial 60 aniversario con prólogo nuevo.",
@@ -84,7 +84,7 @@ export const PRODUCTS: Product[] = [
     brand: "Clásicos Argentinos",
     category: "libros",
     price: 14000,
-    image: img("photo-1495446815901-a7297e633e8f"),
+    image: img("photo-1532012197267-da84d127e765"),
     specs: ["Tapa dura", "Ilustrado", "Bilingüe"],
     description:
       "El poema gauchesco argentino por excelencia. Edición ilustrada con notas al pie.",
@@ -95,7 +95,7 @@ export const PRODUCTS: Product[] = [
     brand: "Artesanos del Norte",
     category: "mate",
     price: 32000,
-    image: img("photo-1605118898735-43ddc3b8d40c"),
+    image: img("photo-1575432543001-96de8a39a3f4"),
     specs: ["Calabaza natural", "Virola de alpaca", "Curado a mano"],
     description:
       "Mate tradicional de calabaza con virola y base de alpaca repujada. Listo para usar, curado por nuestros artesanos.",
@@ -106,7 +106,7 @@ export const PRODUCTS: Product[] = [
     brand: "ASB Mate Club",
     category: "mate",
     price: 64000,
-    image: img("photo-1599054735388-bcb07bcd9c7c"),
+    image: img("photo-1557804506-669714154122"),
     specs: ["Mate + bombilla", "Yerbera", "Termo Stanley", "Caja de regalo"],
     description:
       "Todo lo que necesitás para una buena ronda: mate de calabaza, bombilla de alpaca, yerbera y termo. En caja de madera lista para regalar.",
@@ -117,7 +117,7 @@ export const PRODUCTS: Product[] = [
     brand: "Cooperativa Yerbatera",
     category: "mate",
     price: 8500,
-    image: img("photo-1585523740635-c41c5e18c112"),
+    image: img("photo-1608270861620-7298b045b917"),
     specs: ["500g", "Orgánica certificada", "Sin palo"],
     description:
       "Yerba mate orgánica estacionada 24 meses. Sabor suave y aromático, sin agroquímicos.",
