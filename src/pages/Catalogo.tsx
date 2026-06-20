@@ -47,12 +47,17 @@ export default function Catalogo() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<DbCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [ownerPhone, setOwnerPhone] = useState<string>("");
 
   // Load categories and items from Supabase
   useEffect(() => {
     async function loadData() {
       setLoading(true);
       try {
+        // Load owner phone from profiles (get first/primary user)
+        const { data: profiles } = await supabase.from("profiles").select("phone").limit(1).single();
+        if (profiles?.phone) setOwnerPhone(profiles.phone);
+
         // Load categories
         const { data: catsData } = await supabase.from("categories").select("*").order("display_order");
         if (catsData) setCategories(catsData as DbCategory[]);
@@ -99,16 +104,32 @@ export default function Catalogo() {
     loadData();
   }, []);
 
-  const toggleCat = (c: string) =>
-    setSelectedCats((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+  const toggleCat = (c: string) => {
+    setSelectedCats((prev) => {
+      const updated = prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c];
+      return updated;
+    });
+  };
 
   const filtered = useMemo(() => {
-    return products.filter((p) => {
-      if (search && !`${p.title}`.toLowerCase().includes(search.toLowerCase())) return false;
-      if (selectedCats.length && !selectedCats.includes(p.category)) return false;
-      if (p.price < price[0] || p.price > price[1]) return false;
-      return true;
-    });
+    let result = products;
+
+    // Filter by category
+    if (selectedCats && selectedCats.length > 0) {
+      result = result.filter((p) => selectedCats.includes(p.category));
+    }
+
+    // Filter by search
+    if (search) {
+      result = result.filter((p) =>
+        p.title.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    // Filter by price
+    result = result.filter((p) => p.price >= price[0] && p.price <= price[1]);
+
+    return result;
   }, [search, selectedCats, price, products]);
 
   const updateSearch = (q: string) => {
@@ -182,11 +203,20 @@ export default function Catalogo() {
   return (
     <div className="mx-auto max-w-7xl px-4 lg:px-8 py-10">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Tienda</span>
-        <h1 className="font-display text-4xl md:text-5xl mt-1">Catálogo</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {filtered.length} {filtered.length === 1 ? "regalo disponible" : "regalos disponibles"}
-        </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Tienda</span>
+            <h1 className="font-display text-4xl md:text-5xl mt-1">Catálogo</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {filtered.length} {filtered.length === 1 ? "regalo disponible" : "regalos disponibles"}
+            </p>
+          </div>
+          {ownerPhone && (
+            <a href={`https://wa.me/${ownerPhone.replace(/\D/g, "")}`} className="text-xs text-foreground hover:text-foreground/70 transition-colors text-right">
+              📱 {ownerPhone}
+            </a>
+          )}
+        </div>
       </motion.div>
 
       {/* Category Tiles */}
