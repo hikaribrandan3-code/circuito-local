@@ -23,6 +23,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
 
 export default function Index() {
   const featured = PRODUCTS.slice(0, 8);
+  const hasProducts = PRODUCTS.length > 0;
 
   return (
     <div>
@@ -129,20 +130,35 @@ export default function Index() {
       </section>
 
       {/* DESTACADOS */}
-      <section className="mx-auto max-w-7xl px-4 lg:px-8 py-12">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Lo más querido</span>
-            <h2 className="font-display text-3xl md:text-4xl mt-1">Seleccionados de la semana</h2>
+      {hasProducts ? (
+        <section className="mx-auto max-w-7xl px-4 lg:px-8 py-12">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Lo más querido</span>
+              <h2 className="font-display text-3xl md:text-4xl mt-1">Seleccionados de la semana</h2>
+            </div>
+            <Link to="/catalogo" className="text-sm text-foreground hover:underline underline-offset-4">Ver todo →</Link>
           </div>
-          <Link to="/catalogo" className="text-sm text-foreground hover:underline underline-offset-4">Ver todo →</Link>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {featured.map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} />
-          ))}
-        </div>
-      </section>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {featured.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section className="mx-auto max-w-7xl px-4 lg:px-8 py-16">
+          <div className="rounded-3xl bg-secondary/30 border border-border p-12 text-center">
+            <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Próximamente</span>
+            <h2 className="font-display text-3xl md:text-4xl mt-3">Estamos preparando tus regalos 🎁</h2>
+            <p className="text-foreground/70 mt-3 max-w-md mx-auto">
+              Hemos preparado las categorías con fotos hermosas. Pronto completaremos nuestro catálogo con flores, libros, mate y regalos especiales.
+            </p>
+            <Button asChild size="lg" className="mt-6 bg-foreground text-background hover:bg-foreground/90 rounded-full">
+              <Link to="/contacto">Contanos si buscas algo especial <ArrowRight className="ml-1 h-4 w-4" /></Link>
+            </Button>
+          </div>
+        </section>
+      )}
 
       {/* CONTACT CTA */}
       <section className="mx-auto max-w-7xl px-4 lg:px-8 py-16 md:py-24">
