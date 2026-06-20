@@ -9,6 +9,14 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { CATEGORIES, PRODUCTS, type Category } from "@/lib/products";
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  flores: "/images/flores-category.jpg",
+  libros: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=700&q=80",
+  mate: "/images/mate-product.jpg",
+  argentina: "/images/argentina-jersey.webp",
+  regalos: "/images/regalos-special.png",
+};
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const MAX_PRICE = 200000;
@@ -105,23 +113,38 @@ export default function Catalogo() {
         </p>
       </motion.div>
 
-      {/* Category Tiles - Adaptive Grid */}
-      <div className="mt-8 grid gap-3" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(140px, 1fr))` }}>
+      {/* Category Tiles - Full HD Images - Adaptive Grid */}
+      <div className="mt-8 grid gap-3" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(160px, 1fr))` }}>
         {CATEGORIES.map((c) => {
-          const Icon = { flores: "🌸", libros: "📚", mate: "🧉", argentina: "🇦🇷", regalos: "🎁" }[c.id] || "📦";
           const isSelected = cats.includes(c.id);
           return (
             <button
               key={c.id}
               onClick={() => toggleCat(c.id)}
-              className={`rounded-2xl p-4 text-center transition-all duration-200 ${
-                isSelected
-                  ? "bg-foreground text-background shadow-lg scale-105"
-                  : "bg-card border border-border hover:border-foreground hover:shadow-md"
+              className={`relative group rounded-2xl overflow-hidden aspect-square transition-all duration-200 ${
+                isSelected ? "ring-4 ring-foreground shadow-xl scale-105" : "shadow-md hover:shadow-lg"
               }`}
             >
-              <div className="text-3xl mb-2">{Icon}</div>
-              <p className="font-display text-sm font-medium">{c.label}</p>
+              {/* Background Image */}
+              <img
+                src={CATEGORY_IMAGES[c.id] || ""}
+                alt={c.label}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+              />
+
+              {/* Overlay Gradient */}
+              <div className={`absolute inset-0 transition-all duration-200 ${
+                isSelected
+                  ? "bg-gradient-to-t from-foreground/90 via-foreground/40 to-transparent"
+                  : "bg-gradient-to-t from-foreground/70 via-foreground/30 to-transparent group-hover:from-foreground/80"
+              }`} />
+
+              {/* Text */}
+              <div className="absolute inset-0 flex flex-col items-center justify-end p-3">
+                <p className="font-display text-sm font-semibold text-background text-center drop-shadow-lg">
+                  {c.label}
+                </p>
+              </div>
             </button>
           );
         })}
