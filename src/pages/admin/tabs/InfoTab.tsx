@@ -16,6 +16,7 @@ type Profile = {
   logo_url: string | null;
   description: string | null;
   instagram_handle: string | null;
+  instagram_url: string | null;
 };
 
 const CARD_DESIGNS = [
@@ -35,6 +36,7 @@ export default function InfoTab({ userId }: { userId: string }) {
     logo_url: "",
     description: "",
     instagram_handle: "",
+    instagram_url: "",
   });
   const [saving, setSaving] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState(1);
@@ -59,6 +61,7 @@ export default function InfoTab({ userId }: { userId: string }) {
       logo_url: profile.logo_url,
       description: profile.description,
       instagram_handle: profile.instagram_handle,
+      instagram_url: profile.instagram_url,
     });
     setSaving(false);
     if (error) toast.error(error.message);
@@ -127,11 +130,11 @@ export default function InfoTab({ userId }: { userId: string }) {
           />
         </div>
         <div className="space-y-2">
-          <Label>Instagram</Label>
+          <Label>Instagram URL</Label>
           <Input
-            value={profile.instagram_handle ?? ""}
-            onChange={(e) => set("instagram_handle", e.target.value)}
-            placeholder="@asbstore"
+            value={profile.instagram_url ?? ""}
+            onChange={(e) => set("instagram_url", e.target.value)}
+            placeholder="https://instagram.com/asbstore"
             className="rounded-full"
           />
         </div>

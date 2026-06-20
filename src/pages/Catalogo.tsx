@@ -48,7 +48,7 @@ export default function Catalogo() {
   const [categories, setCategories] = useState<DbCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [ownerPhone, setOwnerPhone] = useState<string>("");
-  const [instagramHandle, setInstagramHandle] = useState<string>("");
+  const [instagramUrl, setInstagramUrl] = useState<string>("");
 
   // Load categories and items from Supabase
   useEffect(() => {
@@ -56,9 +56,9 @@ export default function Catalogo() {
       setLoading(true);
       try {
         // Load owner phone and Instagram from profiles (get first/primary user)
-        const { data: profiles } = await supabase.from("profiles").select("phone,instagram_handle").limit(1).single();
+        const { data: profiles } = await supabase.from("profiles").select("phone,instagram_url").limit(1).single();
         if (profiles?.phone) setOwnerPhone(profiles.phone);
-        if (profiles?.instagram_handle) setInstagramHandle(profiles.instagram_handle);
+        if (profiles?.instagram_url) setInstagramUrl(profiles.instagram_url);
 
         // Load categories
         const { data: catsData } = await supabase.from("categories").select("*").order("display_order");
@@ -219,9 +219,9 @@ export default function Catalogo() {
                 📱 {ownerPhone}
               </a>
             )}
-            {instagramHandle && (
-              <a href={`https://instagram.com/${instagramHandle.replace("@", "")}`} target="_blank" rel="noopener noreferrer" className="text-xs text-foreground hover:text-foreground/70 transition-colors">
-                📸 {instagramHandle}
+            {instagramUrl && (
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-foreground hover:text-foreground/70 transition-colors">
+                📸 Instagram
               </a>
             )}
           </div>
