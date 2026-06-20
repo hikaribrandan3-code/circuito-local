@@ -1,22 +1,36 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Phone, MessageCircle, Instagram, MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { STORE } from "@/lib/products";
 
 export default function Contacto() {
   const [form, setForm] = useState({ name: "", phone: "", message: "" });
+  const [profile, setProfile] = useState<{ phone?: string; instagram_url?: string } | null>(null);
+
+  useEffect(() => {
+    async function loadProfile() {
+      const { data } = await supabase.from("profiles").select("phone,instagram_url").limit(1).maybeSingle();
+      if (data) setProfile(data);
+    }
+    loadProfile();
+  }, []);
+
+  const phone = profile?.phone || STORE.phone;
+  const whatsapp = (profile?.phone || STORE.phone).replace(/\D/g, "");
+  const instagram = profile?.instagram_url || `https://instagram.com/${STORE.instagram.replace("@", "")}`;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const text = encodeURIComponent(
       `Hola ${STORE.name}, soy ${form.name} (${form.phone}).\n\n${form.message}`,
     );
-    window.open(`https://wa.me/${STORE.whatsapp}?text=${text}`, "_blank");
+    window.open(`https://wa.me/${whatsapp}?text=${text}`, "_blank");
     toast.success("¡Listo!", { description: "Te abrimos WhatsApp con tu mensaje." });
   };
 
@@ -73,7 +87,7 @@ export default function Contacto() {
 
         <aside className="space-y-4">
           <a
-            href={`https://wa.me/${STORE.whatsapp}`}
+            href={`https://wa.me/${whatsapp}`}
             target="_blank"
             rel="noreferrer"
             className="flex items-start gap-4 rounded-2xl bg-foreground text-background p-5 hover:opacity-95 transition"
@@ -81,18 +95,18 @@ export default function Contacto() {
             <MessageCircle className="h-6 w-6 mt-0.5" />
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-background/60">WhatsApp</p>
-              <p className="font-display text-xl mt-1">{STORE.phone}</p>
+              <p className="font-display text-xl mt-1">{phone}</p>
               <p className="text-xs text-background/70 mt-1">Respuesta en el día</p>
             </div>
           </a>
           <a
-            href={`tel:${STORE.phone.replace(/\s/g, "")}`}
+            href={`tel:${phone.replace(/\s/g, "")}`}
             className="flex items-start gap-4 rounded-2xl bg-card border border-border p-5 hover:shadow-soft transition"
           >
             <Phone className="h-6 w-6 mt-0.5" />
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Teléfono</p>
-              <p className="font-display text-xl mt-1">{STORE.phone}</p>
+              <p className="font-display text-xl mt-1">{phone}</p>
             </div>
           </a>
           <div className="flex items-start gap-4 rounded-2xl bg-card border border-border p-5">
@@ -111,13 +125,13 @@ export default function Contacto() {
               <p className="text-sm">Interior del país: 48 a 72 hs</p>
             </div>
           </div>
-          <div className="flex items-start gap-4 rounded-2xl bg-card border border-border p-5">
+          <a href={instagram} target="_blank" rel="noreferrer" className="flex items-start gap-4 rounded-2xl bg-card border border-border p-5 hover:shadow-soft transition">
             <Instagram className="h-6 w-6 mt-0.5" />
             <div>
               <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Instagram</p>
-              <p className="text-sm mt-1">@absstore</p>
+              <p className="text-sm mt-1">{profile?.instagram_url ? "Ver perfil" : "@absstore"}</p>
             </div>
-          </div>
+          </a>
         </aside>
       </div>
     </div>
