@@ -14,7 +14,7 @@ const CATEGORY_ICONS: Record<string, typeof Flower2> = {
 };
 
 const CATEGORY_IMAGES: Record<string, string> = {
-  flores: "https://images.unsplash.com/photo-1519763185298-1b994cf3077d?auto=format&fit=crop&w=700&q=80",
+  flores: "/images/flores-category.jpg",
   libros: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=700&q=80",
   mate: "/images/mate-product.jpg",
   argentina: "/images/argentina-jersey.webp",
