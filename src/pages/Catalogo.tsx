@@ -242,7 +242,7 @@ export default function Catalogo() {
                 }`}
               >
                 <img
-                  src={CATEGORY_IMAGES[c.id] || ""}
+                  src={CATEGORY_IMAGES[c.id]}
                   alt={c.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
