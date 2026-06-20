@@ -105,6 +105,28 @@ export default function Catalogo() {
         </p>
       </motion.div>
 
+      {/* Category Tiles - Adaptive Grid */}
+      <div className="mt-8 grid gap-3" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(140px, 1fr))` }}>
+        {CATEGORIES.map((c) => {
+          const Icon = { flores: "🌸", libros: "📚", mate: "🧉", argentina: "🇦🇷", regalos: "🎁" }[c.id] || "📦";
+          const isSelected = cats.includes(c.id);
+          return (
+            <button
+              key={c.id}
+              onClick={() => toggleCat(c.id)}
+              className={`rounded-2xl p-4 text-center transition-all duration-200 ${
+                isSelected
+                  ? "bg-foreground text-background shadow-lg scale-105"
+                  : "bg-card border border-border hover:border-foreground hover:shadow-md"
+              }`}
+            >
+              <div className="text-3xl mb-2">{Icon}</div>
+              <p className="font-display text-sm font-medium">{c.label}</p>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="mt-8 grid lg:grid-cols-[260px_1fr] gap-8">
         <aside className="hidden lg:block sticky top-24 self-start rounded-2xl bg-card border border-border p-5 shadow-soft">{Filters}</aside>
 
