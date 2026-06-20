@@ -113,6 +113,7 @@ export default function Catalogo() {
             };
           });
 
+          console.log("Products loaded:", productList.map(p => ({ title: p.title, category: p.category, catName: p.categoryName })));
           setProducts(productList);
         }
       } catch (err) {
@@ -138,6 +139,7 @@ export default function Catalogo() {
     // Filter by category
     if (selectedCats && selectedCats.length > 0) {
       result = result.filter((p) => selectedCats.includes(p.category));
+      console.log(`Filtered by categories ${selectedCats}: ${result.length} products found`, result.map(p => p.title));
     }
 
     // Filter by search
