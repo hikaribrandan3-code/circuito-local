@@ -26,7 +26,7 @@ export const PRODUCTS: Product[] = [
   {
     id: "ramo-peonias-blush",
     title: "Ramo de Peonías Blush",
-    brand: "Floristería ABS",
+    brand: "Floristería ASB",
     category: "flores",
     price: 38000,
     image: img("photo-1561181286-d3fee7d55364"),
@@ -37,7 +37,7 @@ export const PRODUCTS: Product[] = [
   {
     id: "ramo-girasoles",
     title: "Girasoles del Campo",
-    brand: "Floristería ABS",
+    brand: "Floristería ASB",
     category: "flores",
     price: 22000,
     image: img("photo-1597848212624-a19eb35e2651"),
@@ -48,7 +48,7 @@ export const PRODUCTS: Product[] = [
   {
     id: "arreglo-jardin-secreto",
     title: "Arreglo Jardín Secreto",
-    brand: "Floristería ABS",
+    brand: "Floristería ASB",
     category: "flores",
     price: 52000,
     image: img("photo-1487530811176-3780de880c2d"),
@@ -103,7 +103,7 @@ export const PRODUCTS: Product[] = [
   {
     id: "set-mate-completo",
     title: "Set Mate Completo",
-    brand: "ABS Mate Club",
+    brand: "ASB Mate Club",
     category: "mate",
     price: 64000,
     image: img("photo-1599054735388-bcb07bcd9c7c"),
@@ -158,7 +158,7 @@ export const PRODUCTS: Product[] = [
   {
     id: "caja-bienvenido-buenos-aires",
     title: "Caja Bienvenido a Córdoba Capital",
-    brand: "ABS Curated",
+    brand: "ASB Curated",
     category: "regalos",
     price: 78000,
     image: img("photo-1509042239860-f550ce710b93"),
@@ -169,7 +169,7 @@ export const PRODUCTS: Product[] = [
   {
     id: "caja-tarde-de-mate",
     title: "Caja Tarde de Mate",
-    brand: "ABS Curated",
+    brand: "ASB Curated",
     category: "regalos",
     price: 56000,
     image: img("photo-1585523740635-c41c5e18c112"),
@@ -180,7 +180,7 @@ export const PRODUCTS: Product[] = [
   {
     id: "caja-romantica",
     title: "Caja Romántica",
-    brand: "ABS Curated",
+    brand: "ASB Curated",
     category: "regalos",
     price: 92000,
     image: img("photo-1599599810694-b5ac4dd064fd"),
@@ -198,9 +198,9 @@ export const formatARS = (n: number) =>
   }).format(n);
 
 export const STORE = {
-  name: "ABS Store",
+  name: "ASB Store",
   tagline: "Gift shop de regalos curados en Córdoba Capital",
   phone: "+54 9 3354 935 4752",
   whatsapp: "5493354935475", // digits only for wa.me
-  instagram: "@absstore",
+  instagram: "@asbstore",
 };

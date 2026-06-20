@@ -1,4 +1,4 @@
--- ABS Store: Seed categories and products
+-- ASB Store: Seed categories and products
 -- Run this AFTER signing up in admin
 -- Replace 'YOUR_USER_ID' with your actual user ID from Supabase Auth
 

@@ -36,7 +36,7 @@ export default function AdminLayout({ userId, userEmail }: { userId: string; use
               <span className="font-display text-sm font-semibold text-background">A</span>
             </div>
             <div>
-              <p className="font-display text-base font-semibold leading-tight">ABS Store</p>
+              <p className="font-display text-base font-semibold leading-tight">ASB Store</p>
               <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">{userEmail}</p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export default function AdminLayout({ userId, userEmail }: { userId: string; use
             <div className="h-7 w-7 rounded-full bg-foreground flex items-center justify-center">
               <span className="font-display text-xs font-semibold text-background">A</span>
             </div>
-            <span className="font-display text-base font-semibold">ABS Admin</span>
+            <span className="font-display text-base font-semibold">ASB Admin</span>
           </div>
           <Button variant="ghost" size="icon" onClick={logout}>
             <LogOut className="h-4 w-4" />

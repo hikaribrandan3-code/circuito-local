@@ -55,7 +55,7 @@ export default function InfoTab({ userId }: { userId: string }) {
     if (!canvas) return;
     const a = document.createElement("a");
     a.href = canvas.toDataURL("image/png");
-    a.download = "abs-store-qr.png";
+    a.download = "asb-store-qr.png";
     a.click();
   }
 
@@ -99,7 +99,7 @@ export default function InfoTab({ userId }: { userId: string }) {
           <Input
             value={profile.shop_url ?? ""}
             onChange={(e) => set("shop_url", e.target.value)}
-            placeholder="https://absstore.vercel.app"
+            placeholder="https://asbstore.vercel.app"
             className="rounded-full"
           />
         </div>
@@ -186,7 +186,7 @@ export default function InfoTab({ userId }: { userId: string }) {
                     <span style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", color: "oklch(0.78 0.13 80)" }}>A</span>
                   </div>
                 )}
-                <p style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", fontWeight: 500, letterSpacing: "-0.01em", color: "oklch(0.98 0.006 85)" }}>ABS Store</p>
+                <p style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", fontWeight: 500, letterSpacing: "-0.01em", color: "oklch(0.98 0.006 85)" }}>ASB Store</p>
                 <p style={{ fontSize: "0.6rem", letterSpacing: "0.18em", textTransform: "uppercase", color: "oklch(0.78 0.13 80)", marginTop: "2px" }}>Regalos curados</p>
               </div>
               <div className="bg-white rounded-lg p-1.5">

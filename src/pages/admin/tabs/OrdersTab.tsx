@@ -93,7 +93,7 @@ export default function OrdersTab({ userId }: { userId: string }) {
                       <span>${order.total.toLocaleString("es-AR")}</span>
                     </div>
                     <a
-                      href={`https://wa.me/${order.customer_phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola ${order.customer_name}, gracias por tu pedido de ABS Store 🙌`)}`}
+                      href={`https://wa.me/${order.customer_phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola ${order.customer_name}, gracias por tu pedido de ASB Store 🙌`)}`}
                       target="_blank"
                       rel="noreferrer"
                       className="flex items-center justify-center gap-2 w-full rounded-full bg-[#25D366] text-white py-2 text-sm font-medium hover:opacity-90 transition"
