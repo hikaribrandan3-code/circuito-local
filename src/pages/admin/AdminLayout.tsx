@@ -78,8 +78,8 @@ export default function AdminLayout({ userId, userEmail }: { userId: string; use
             </div>
             <span className="font-display text-base font-semibold">ASB Admin</span>
           </div>
-          <Button variant="ghost" size="icon" onClick={logout}>
-            <LogOut className="h-4 w-4" />
+          <Button variant="destructive" size="sm" onClick={logout} className="rounded-full gap-1.5 text-xs">
+            <LogOut className="h-3.5 w-3.5" /> Salir
           </Button>
         </div>
 
