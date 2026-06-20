@@ -36,15 +36,15 @@ export default function Index() {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs">
               <span className="h-2 w-2 rounded-full bg-celeste" />
-              <span className="text-muted-foreground">Desde La Docta · Córdoba Capital · Envíos en el día</span>
+              <span className="text-muted-foreground">Boutique de regalos · Desde Córdoba hacia Argentina</span>
             </span>
             <h1 className="mt-5 font-display text-5xl sm:text-6xl md:text-7xl leading-[1.02] tracking-tight">
-              Regalos que <span className="serif-italic">cuentan</span>
+              Regalos <span className="serif-italic">boutique</span>
               <br />
-              <span className="serif-italic">historias</span> desde Córdoba.
+              que <span className="serif-italic">cuentan</span> historias.
             </h1>
             <p className="mt-5 max-w-md text-base md:text-lg text-foreground/80 leading-relaxed">
-              Flores frescas, libros queridos, mate compartido. Cada detalle seleccionado desde La Docta, para alguien especial.
+              Seleccionados con cuidado. Enviamos a todo el país. Flores, libros, mate y piezas argentinas de diseño.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 font-medium rounded-full">
