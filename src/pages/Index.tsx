@@ -72,13 +72,6 @@ export default function Index() {
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="hidden md:block absolute -bottom-6 -left-6 w-44 aspect-square overflow-hidden rounded-2xl border-4 border-background shadow-elegant">
-              <img
-                src="https://images.unsplash.com/photo-1605118898735-43ddc3b8d40c?auto=format&fit=crop&w=400&q=80"
-                alt="Mate de calabaza con alpaca"
-                className="h-full w-full object-cover"
-              />
-            </div>
             <div className="hidden md:flex absolute -top-4 -right-4 items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 shadow-elegant">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
               <span className="text-xs font-medium tracking-wider uppercase">Hecho a mano</span>
@@ -181,6 +174,9 @@ export default function Index() {
                 </Button>
                 <Button asChild size="lg" className="border-2 border-foreground text-foreground hover:bg-foreground hover:text-background rounded-full transition-all">
                   <a href={`https://wa.me/${STORE.whatsapp}`} target="_blank" rel="noreferrer">WhatsApp directo</a>
+                </Button>
+                <Button asChild size="lg" className="border-2 border-foreground text-foreground hover:bg-foreground hover:text-background rounded-full transition-all">
+                  <a href={STORE.instagram} target="_blank" rel="noreferrer">Instagram</a>
                 </Button>
               </div>
             </div>

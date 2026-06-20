@@ -36,7 +36,7 @@ export const formatARS = (n: number) =>
 export const STORE = {
   name: "ASB Store",
   tagline: "Boutique de regalos · Córdoba Capital",
-  phone: "+54 9 3354 935 4752",
-  whatsapp: "5493354935475", // digits only for wa.me
-  instagram: "@asbstore",
+  phone: "3516459100",
+  whatsapp: "543516459100", // digits only for wa.me
+  instagram: "https://instagram.com/asbstore",
 };
