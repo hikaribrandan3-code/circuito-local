@@ -15,6 +15,7 @@ type Profile = {
   shop_url: string | null;
   logo_url: string | null;
   description: string | null;
+  instagram_handle: string | null;
 };
 
 const CARD_DESIGNS = [
@@ -33,6 +34,7 @@ export default function InfoTab({ userId }: { userId: string }) {
     shop_url: typeof window !== "undefined" ? window.location.origin : "",
     logo_url: "",
     description: "",
+    instagram_handle: "",
   });
   const [saving, setSaving] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState(1);
@@ -56,6 +58,7 @@ export default function InfoTab({ userId }: { userId: string }) {
       shop_url: profile.shop_url,
       logo_url: profile.logo_url,
       description: profile.description,
+      instagram_handle: profile.instagram_handle,
     });
     setSaving(false);
     if (error) toast.error(error.message);
@@ -120,6 +123,15 @@ export default function InfoTab({ userId }: { userId: string }) {
             value={profile.phone ?? ""}
             onChange={(e) => set("phone", e.target.value)}
             placeholder="+54 9 335 493 5475"
+            className="rounded-full"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>Instagram</Label>
+          <Input
+            value={profile.instagram_handle ?? ""}
+            onChange={(e) => set("instagram_handle", e.target.value)}
+            placeholder="@asbstore"
             className="rounded-full"
           />
         </div>

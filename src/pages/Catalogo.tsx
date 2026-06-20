@@ -48,15 +48,17 @@ export default function Catalogo() {
   const [categories, setCategories] = useState<DbCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [ownerPhone, setOwnerPhone] = useState<string>("");
+  const [instagramHandle, setInstagramHandle] = useState<string>("");
 
   // Load categories and items from Supabase
   useEffect(() => {
     async function loadData() {
       setLoading(true);
       try {
-        // Load owner phone from profiles (get first/primary user)
-        const { data: profiles } = await supabase.from("profiles").select("phone").limit(1).single();
+        // Load owner phone and Instagram from profiles (get first/primary user)
+        const { data: profiles } = await supabase.from("profiles").select("phone,instagram_handle").limit(1).single();
         if (profiles?.phone) setOwnerPhone(profiles.phone);
+        if (profiles?.instagram_handle) setInstagramHandle(profiles.instagram_handle);
 
         // Load categories
         const { data: catsData } = await supabase.from("categories").select("*").order("display_order");
@@ -211,11 +213,18 @@ export default function Catalogo() {
               {filtered.length} {filtered.length === 1 ? "regalo disponible" : "regalos disponibles"}
             </p>
           </div>
-          {ownerPhone && (
-            <a href={`https://wa.me/${ownerPhone.replace(/\D/g, "")}`} className="text-xs text-foreground hover:text-foreground/70 transition-colors text-right">
-              📱 {ownerPhone}
-            </a>
-          )}
+          <div className="flex flex-col gap-1 text-right">
+            {ownerPhone && (
+              <a href={`https://wa.me/${ownerPhone.replace(/\D/g, "")}`} className="text-xs text-foreground hover:text-foreground/70 transition-colors">
+                📱 {ownerPhone}
+              </a>
+            )}
+            {instagramHandle && (
+              <a href={`https://instagram.com/${instagramHandle.replace("@", "")}`} target="_blank" rel="noopener noreferrer" className="text-xs text-foreground hover:text-foreground/70 transition-colors">
+                📸 {instagramHandle}
+              </a>
+            )}
+          </div>
         </div>
       </motion.div>
 
