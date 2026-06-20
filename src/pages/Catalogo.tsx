@@ -46,6 +46,7 @@ export default function Catalogo() {
   const [selectedCats, setSelectedCats] = useState<string[]>(catParam ? [catParam] : []);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<DbCategory[]>([]);
+  const [categoryImages, setCategoryImages] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [ownerPhone, setOwnerPhone] = useState<string>("");
   const [instagramUrl, setInstagramUrl] = useState<string>("");
@@ -95,6 +96,19 @@ export default function Catalogo() {
           });
 
           setProducts(productList);
+
+          // Build category images from first product in each category
+          const catImages: Record<string, string> = {};
+          catsData?.forEach((cat) => {
+            const firstProductInCat = productList.find((p) => p.category === cat.id);
+            if (firstProductInCat) {
+              catImages[cat.id] = firstProductInCat.image;
+            } else {
+              // Fallback to static image if no product in category
+              catImages[cat.id] = CATEGORY_IMAGES[cat.id] || "";
+            }
+          });
+          setCategoryImages(catImages);
         }
       } catch (err) {
         console.error("Error loading catalog:", err);
@@ -242,7 +256,7 @@ export default function Catalogo() {
                 }`}
               >
                 <img
-                  src={CATEGORY_IMAGES[c.id] || ""}
+                  src={categoryImages[c.id] || CATEGORY_IMAGES[c.id] || ""}
                   alt={c.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
