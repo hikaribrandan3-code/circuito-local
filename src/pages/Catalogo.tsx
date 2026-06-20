@@ -46,7 +46,6 @@ export default function Catalogo() {
   const [selectedCats, setSelectedCats] = useState<string[]>(catParam ? [catParam] : []);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<DbCategory[]>([]);
-  const [categoryImages, setCategoryImages] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [ownerPhone, setOwnerPhone] = useState<string>("");
   const [instagramUrl, setInstagramUrl] = useState<string>("");
@@ -96,19 +95,6 @@ export default function Catalogo() {
           });
 
           setProducts(productList);
-
-          // Build category images from category's own image_url in Supabase
-          const catImages: Record<string, string> = {};
-          catsData?.forEach((cat: DbCategory) => {
-            // Use category's own image_url from Supabase if available
-            if (cat.image_url) {
-              catImages[cat.id] = cat.image_url;
-            } else {
-              // Fallback to static image if category has no image
-              catImages[cat.id] = CATEGORY_IMAGES[cat.id] || "";
-            }
-          });
-          setCategoryImages(catImages);
         }
       } catch (err) {
         console.error("Error loading catalog:", err);
@@ -256,7 +242,7 @@ export default function Catalogo() {
                 }`}
               >
                 <img
-                  src={categoryImages[c.id] || CATEGORY_IMAGES[c.id] || ""}
+                  src={CATEGORY_IMAGES[c.id] || ""}
                   alt={c.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
