@@ -95,7 +95,7 @@ export const PRODUCTS: Product[] = [
     brand: "Artesanos del Norte",
     category: "mate",
     price: 32000,
-    image: img("photo-1575432543001-96de8a39a3f4"),
+    image: "/images/mate-product.jpg",
     specs: ["Calabaza natural", "Virola de alpaca", "Curado a mano"],
     description:
       "Mate tradicional de calabaza con virola y base de alpaca repujada. Listo para usar, curado por nuestros artesanos.",
@@ -106,7 +106,7 @@ export const PRODUCTS: Product[] = [
     brand: "ASB Mate Club",
     category: "mate",
     price: 64000,
-    image: img("photo-1557804506-669714154122"),
+    image: "/images/mate-product.jpg",
     specs: ["Mate + bombilla", "Yerbera", "Termo Stanley", "Caja de regalo"],
     description:
       "Todo lo que necesitás para una buena ronda: mate de calabaza, bombilla de alpaca, yerbera y termo. En caja de madera lista para regalar.",
@@ -128,7 +128,7 @@ export const PRODUCTS: Product[] = [
     brand: "Argentina Oficial",
     category: "argentina",
     price: 145000,
-    image: img("photo-1521572163474-6864f9cf17ab"),
+    image: "/images/argentina-jersey.webp",
     specs: ["Talles S a XXL", "Tela DryCool", "Edición campeón"],
     description:
       "Camiseta titular oficial de la Selección Argentina, edición tres estrellas. Para llevar la celeste y blanca con orgullo.",
@@ -139,7 +139,7 @@ export const PRODUCTS: Product[] = [
     brand: "Hecho en Argentina",
     category: "argentina",
     price: 28000,
-    image: img("photo-1578985545062-69928b1d9587"),
+    image: "/images/argentina-jersey.webp",
     specs: ["90 x 150 cm", "Sol de Mayo bordado", "Tela premium"],
     description:
       "Bandera nacional con Sol de Mayo bordado a mano. Confeccionada en tela de alta resistencia.",
