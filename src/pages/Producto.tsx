@@ -1,20 +1,135 @@
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Check, ShoppingBag, Truck, Heart, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
-import { formatARS, PRODUCTS, STORE } from "@/lib/products";
+import { formatARS, STORE } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+type DbItem = { id: string; name: string; description: string | null; price: number; category_id: string; image_url: string | null };
+type DbItemImage = { id: string; item_id: string; image_url: string; display_order: number };
+type DbCategory = { id: string; name: string };
+
+type Product = {
+  id: string;
+  title: string;
+  category: string;
+  price: number;
+  image: string;
+  categoryName: string;
+  stock_status: string;
+  description: string | null;
+  allImages: string[];
+};
 
 export default function Producto() {
   const { id } = useParams<{ id: string }>();
   const { add } = useCart();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const product = PRODUCTS.find((p) => p.id === id);
-  const images = [product?.image].filter(Boolean) as string[];
+  useEffect(() => {
+    async function loadProduct() {
+      try {
+        // Load the specific item
+        const { data: itemData } = await supabase.from("items").select("*").eq("id", id).single();
+        if (!itemData) {
+          setProduct(null);
+          setLoading(false);
+          return;
+        }
+
+        const item = itemData as DbItem;
+
+        // Load all categories for lookups
+        const { data: catsData } = await supabase.from("categories").select("*");
+        const catMap: Record<string, string> = {};
+        (catsData || []).forEach((c: DbCategory) => {
+          catMap[c.id] = c.name;
+        });
+
+        // Load images for this item
+        const { data: imagesData } = await supabase
+          .from("item_images")
+          .select("*")
+          .eq("item_id", id)
+          .order("display_order");
+
+        const images = (imagesData || []).map((img: DbItemImage) => img.image_url);
+        const firstImage = images[0] || item.image_url || "https://images.unsplash.com/photo-1549465120-7ccae1a7d4d6?auto=format&fit=crop&w=900&q=80";
+
+        const prod: Product = {
+          id: item.id,
+          title: item.name,
+          category: item.category_id,
+          price: item.price,
+          image: firstImage,
+          categoryName: catMap[item.category_id] || "General",
+          stock_status: "in_stock",
+          description: item.description,
+          allImages: images.length > 0 ? images : [firstImage],
+        };
+
+        setProduct(prod);
+
+        // Load related products (same category)
+        const { data: relatedData } = await supabase
+          .from("items")
+          .select("*")
+          .eq("category_id", item.category_id)
+          .eq("stock_status", "in_stock")
+          .neq("id", id)
+          .limit(4);
+
+        if (relatedData) {
+          const { data: allImagesData } = await supabase.from("item_images").select("*").order("display_order");
+          const imageMap: Record<string, DbItemImage[]> = {};
+          (allImagesData || []).forEach((img: DbItemImage) => {
+            if (!imageMap[img.item_id]) imageMap[img.item_id] = [];
+            imageMap[img.item_id].push(img);
+          });
+
+          const relatedProducts: Product[] = relatedData.map((rel: DbItem) => ({
+            id: rel.id,
+            title: rel.name,
+            category: rel.category_id,
+            price: rel.price,
+            image: imageMap[rel.id]?.[0]?.image_url || rel.image_url || "https://images.unsplash.com/photo-1549465120-7ccae1a7d4d6?auto=format&fit=crop&w=900&q=80",
+            categoryName: catMap[rel.category_id] || "General",
+            stock_status: "in_stock",
+            description: rel.description,
+            allImages: [],
+          }));
+
+          setRelated(relatedProducts);
+        }
+      } catch (err) {
+        console.error("Error loading product:", err);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id) {
+      loadProduct();
+    }
+  }, [id]);
+
+  const images = product?.allImages || [];
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-24 text-center">
+        <p className="text-muted-foreground">Cargando producto...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -26,7 +141,6 @@ export default function Producto() {
     );
   }
 
-  const related = PRODUCTS.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
   const waText = encodeURIComponent(`Hola ${STORE.name}, me interesa el producto: ${product.title}`);
 
   return (
@@ -92,33 +206,33 @@ export default function Producto() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{product.brand}</span>
+          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{product.categoryName}</span>
           <h1 className="mt-2 font-display text-4xl md:text-5xl leading-tight">{product.title}</h1>
           <p className="mt-5 font-display text-3xl font-semibold">{formatARS(product.price)}</p>
 
-          <p className="mt-6 text-foreground/80 leading-relaxed">{product.description}</p>
-
-          <div className="mt-6 grid gap-2">
-            <h3 className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Detalles</h3>
-            <ul className="grid grid-cols-2 gap-2">
-              {product.specs.map((s: string) => (
-                <li key={s} className="flex items-center gap-2 rounded-lg bg-secondary px-3 py-2 text-sm">
-                  <Check className="h-4 w-4 text-foreground shrink-0" /> {s}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {product.description && (
+            <p className="mt-6 text-foreground/80 leading-relaxed">{product.description}</p>
+          )}
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Button
               size="lg"
               onClick={() => {
-                add(product);
-                toast.success("Added to cart", { description: product.title });
+                add({
+                  id: product.id,
+                  title: product.title,
+                  brand: product.categoryName,
+                  category: product.category as any,
+                  price: product.price,
+                  image: product.image,
+                  specs: [],
+                  description: product.description || "",
+                });
+                toast.success("Añadido al carrito", { description: product.title });
               }}
               className="bg-foreground text-background hover:bg-foreground/90 font-medium rounded-full"
             >
-              <ShoppingBag className="mr-1 h-4 w-4" /> Add to cart
+              <ShoppingBag className="mr-1 h-4 w-4" /> Añadir al carrito
             </Button>
             <Button asChild size="lg" variant="outline" className="rounded-full">
               <a href={`https://wa.me/${STORE.whatsapp}?text=${waText}`} target="_blank" rel="noreferrer">
