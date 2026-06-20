@@ -65,7 +65,7 @@ export default function Catalogo() {
         if (catsData) setCategories(catsData as DbCategory[]);
 
         // Load items with their primary image
-        const { data: itemsData } = await supabase.from("items").select("*").eq("stock_status", "in_stock");
+        const { data: itemsData } = await supabase.from("items").select("*");
         if (itemsData) {
           const items = itemsData as DbItem[];
 

@@ -82,7 +82,6 @@ export default function Producto() {
           .from("items")
           .select("*")
           .eq("category_id", item.category_id)
-          .eq("stock_status", "in_stock")
           .neq("id", id)
           .limit(4);
 
