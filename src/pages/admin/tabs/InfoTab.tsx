@@ -177,6 +177,19 @@ export default function InfoTab({ userId }: { userId: string }) {
       <div className="rounded-2xl bg-card border border-border p-5 shadow-soft">
         <h2 className="font-display text-xl mb-4">Tarjeta de presentación</h2>
 
+        {/* Description Editor */}
+        <div className="mb-6 p-4 bg-secondary rounded-xl">
+          <Label className="text-xs uppercase tracking-[0.1em] text-muted-foreground">Descripción en la tarjeta (lo que ves abajo se actualiza en vivo)</Label>
+          <Textarea
+            rows={2}
+            value={profile.description ?? ""}
+            onChange={(e) => set("description", e.target.value)}
+            placeholder="Regalos curados, libros, flores, mate y accesorios argentinos..."
+            className="rounded-lg mt-2 text-xs"
+          />
+          <p className="text-[10px] text-muted-foreground mt-1">{(profile.description ?? "").length} caracteres</p>
+        </div>
+
         {/* Card Preview */}
         <div id="business-card-print" className="relative mx-auto overflow-hidden rounded-2xl shadow-elegant"
           style={{ width: "340px", height: "190px" }}>
