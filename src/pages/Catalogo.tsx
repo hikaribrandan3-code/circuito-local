@@ -230,14 +230,14 @@ export default function Catalogo() {
 
       {/* Category Tiles */}
       {categories.length > 0 && (
-        <div className="mt-8 grid gap-3" style={{ gridTemplateColumns: `repeat(auto-fit, minmax(160px, 1fr))` }}>
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {categories.map((c) => {
             const isSelected = selectedCats.includes(c.id);
             return (
               <button
                 key={c.id}
                 onClick={() => toggleCat(c.id)}
-                className={`relative group rounded-2xl overflow-hidden aspect-square transition-all duration-200 ${
+                className={`relative group rounded-2xl overflow-hidden aspect-[3/4] transition-all duration-200 ${
                   isSelected ? "ring-4 ring-foreground shadow-xl scale-105" : "shadow-md hover:shadow-lg"
                 }`}
               >
