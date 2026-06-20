@@ -18,7 +18,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
   libros: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=700&q=80",
   mate: "/images/mate-product.jpg",
   argentina: "/images/argentina-jersey.webp",
-  regalos: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=700&q=80",
+  regalos: "/images/regalos-special.png",
 };
 
 export default function Index() {
@@ -36,16 +36,15 @@ export default function Index() {
           >
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs">
               <span className="h-2 w-2 rounded-full bg-celeste" />
-              <span className="text-muted-foreground">Boutique de Córdoba Capital · Envíos en el día</span>
+              <span className="text-muted-foreground">Desde La Docta · Córdoba Capital · Envíos en el día</span>
             </span>
             <h1 className="mt-5 font-display text-5xl sm:text-6xl md:text-7xl leading-[1.02] tracking-tight">
-              Regalos <span className="serif-italic text-muted-foreground">curados</span>
+              Regalos que <span className="serif-italic">cuentan</span>
               <br />
-              con alma <span className="serif-italic">argentina.</span>
+              <span className="serif-italic">historias</span> desde Córdoba.
             </h1>
             <p className="mt-5 max-w-md text-base md:text-lg text-foreground/80 leading-relaxed">
-              Flores frescas, libros queridos, mate compartido y piezas hechas a mano.
-              Cada regalo, una historia para contar.
+              Flores frescas, libros queridos, mate compartido. Cada detalle seleccionado desde La Docta, para alguien especial.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 font-medium rounded-full">
