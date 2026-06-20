@@ -16,9 +16,9 @@ const CATEGORY_ICONS: Record<string, typeof Flower2> = {
 const CATEGORY_IMAGES: Record<string, string> = {
   flores: "https://images.unsplash.com/photo-1552032543-dc66dfd0eca5?auto=format&fit=crop&w=700&q=80",
   libros: "https://images.unsplash.com/photo-1507842217343-583f7270bfed?auto=format&fit=crop&w=700&q=80",
-  mate: "https://images.unsplash.com/photo-1585523740635-c41c5e18c112?auto=format&fit=crop&w=700&q=80",
-  argentina: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=700&q=80",
-  regalos: "https://images.unsplash.com/photo-1559056169-641406521c4f?auto=format&fit=crop&w=700&q=80",
+  mate: "/images/mate-product.jpg",
+  argentina: "/images/argentina-jersey.webp",
+  regalos: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=700&q=80",
 };
 
 export default function Index() {
