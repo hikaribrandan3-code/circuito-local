@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react";
 
-type Category = { id: string; name: string; description: string | null; display_order: number };
+type Category = { id: string; name: string; description: string | null; display_order: number; image_url?: string | null };
 type Item = { id: string; name: string; description: string | null; price: number; stock_status: string; category_id: string };
 type ItemImage = { id: string; item_id: string; image_url: string; display_order: number };
 
@@ -55,7 +55,13 @@ export default function ShopTab({ userId }: { userId: string }) {
   async function saveCategory(e: React.FormEvent) {
     e.preventDefault();
     if (!editingCat) return;
-    const payload = { user_id: userId, name: editingCat.name ?? "", description: editingCat.description ?? null, display_order: editingCat.display_order ?? 0 };
+    const payload = {
+      user_id: userId,
+      name: editingCat.name ?? "",
+      description: editingCat.description ?? null,
+      display_order: editingCat.display_order ?? 0,
+      image_url: editingCat.image_url ?? null,
+    };
     const op = editingCat.id
       ? supabase.from("categories").update(payload).eq("id", editingCat.id)
       : supabase.from("categories").insert(payload);
@@ -175,6 +181,42 @@ export default function ShopTab({ userId }: { userId: string }) {
                 <Label>Descripción</Label>
                 <Input value={editingCat.description ?? ""} onChange={(e) => setEditingCat({ ...editingCat, description: e.target.value })} className="rounded-full" />
               </div>
+              <div className="space-y-2">
+                <Label>Imagen de categoría</Label>
+                <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border p-4 cursor-pointer hover:border-foreground/50 transition-colors group">
+                  {editingCat.image_url ? (
+                    <>
+                      <img src={editingCat.image_url} alt="" className="h-24 w-24 rounded-lg object-cover border border-border" />
+                      <p className="text-[10px] text-muted-foreground group-hover:text-foreground">Cambiar imagen</p>
+                    </>
+                  ) : (
+                    <>
+                      <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                      <p className="text-[10px] text-muted-foreground text-center">Subir imagen</p>
+                    </>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const timestamp = Date.now();
+                        const filename = `category-${editingCat.id || timestamp}-${file.name}`;
+                        const { data, error } = await supabase.storage.from("item-images").upload(filename, file, { upsert: true });
+                        if (error) throw error;
+                        const { data: publicUrl } = supabase.storage.from("item-images").getPublicUrl(filename);
+                        setEditingCat({ ...editingCat, image_url: publicUrl.publicUrl });
+                        toast.success("Imagen subida");
+                      } catch (err: any) {
+                        toast.error(`Error: ${err.message}`);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
               <div className="flex gap-2">
                 <Button type="submit" className="rounded-full bg-foreground text-background">Guardar</Button>
                 <Button type="button" variant="ghost" onClick={() => setEditingCat(null)} className="rounded-full">Cancelar</Button>
@@ -193,12 +235,15 @@ export default function ShopTab({ userId }: { userId: string }) {
               </div>
             )}
             {categories.map((cat) => (
-              <div key={cat.id} className="flex items-center justify-between rounded-2xl bg-card border border-border p-4 shadow-soft">
-                <div>
+              <div key={cat.id} className="flex items-center gap-4 rounded-2xl bg-card border border-border p-4 shadow-soft">
+                {cat.image_url && (
+                  <img src={cat.image_url} alt={cat.name} className="h-16 w-16 rounded-lg object-cover shrink-0 border border-border" />
+                )}
+                <div className="flex-1 min-w-0">
                   <p className="font-medium">{cat.name}</p>
                   {cat.description && <p className="text-xs text-muted-foreground">{cat.description}</p>}
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 shrink-0">
                   <Button size="icon" variant="ghost" onClick={() => setEditingCat(cat)}><Pencil className="h-4 w-4" /></Button>
                   <Button size="icon" variant="ghost" onClick={() => deleteCategory(cat.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                 </div>
