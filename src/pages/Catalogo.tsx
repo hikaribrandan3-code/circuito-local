@@ -33,6 +33,25 @@ const CATEGORY_IMAGES: Record<string, string> = {
   regalos: "/images/regalos-special.png",
 };
 
+// Map category names to image URLs (handles both ID-based and name-based lookups)
+const getImageForCategory = (category: DbCategory): string => {
+  // First try by ID (in case ID is "flores", "libros", etc.)
+  if (CATEGORY_IMAGES[category.id]) {
+    return CATEGORY_IMAGES[category.id];
+  }
+  // Fall back to name-based lookup (lowercase the category name)
+  const nameKey = category.name.toLowerCase().replace(/[^a-z]/g, "");
+  if (CATEGORY_IMAGES[nameKey]) {
+    return CATEGORY_IMAGES[nameKey];
+  }
+  // If no match, try partial match (e.g., "Libros" -> "libros")
+  const firstWord = category.name.split(" ")[0].toLowerCase();
+  if (CATEGORY_IMAGES[firstWord]) {
+    return CATEGORY_IMAGES[firstWord];
+  }
+  return "/images/default-category.jpg";
+};
+
 const MAX_PRICE = 200000;
 
 export default function Catalogo() {
@@ -242,7 +261,7 @@ export default function Catalogo() {
                 }`}
               >
                 <img
-                  src={CATEGORY_IMAGES[c.id]}
+                  src={getImageForCategory(c)}
                   alt={c.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
