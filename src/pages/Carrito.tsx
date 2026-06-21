@@ -21,9 +21,18 @@ export default function Carrito() {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
         <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-secondary">
-          <span className="text-5xl select-none">😢</span>
+          <img
+            src="/sad-sleepy-emoticon-face-square-svgrepo-com.svg"
+            alt="sad face"
+            className="h-16 w-16 object-contain"
+            onError={(e) => {
+              // Fallback to emoji if SVG fails to load
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement!.innerHTML = '<span class="text-5xl select-none">😢</span>';
+            }}
+          />
         </div>
-        <h1 className="mt-6 font-display text-4xl">Tu carrito está vacío</h1>
+        <h1 className="mt-6 font-display text-4xl">Pobresito, tu carrito está vacío</h1>
         <p className="mt-2 text-muted-foreground">Nada por aquí todavía... explorá el catálogo y encontrá el regalo perfecto.</p>
         <Button asChild className="mt-8 bg-foreground text-background hover:bg-foreground/90 rounded-full">
           <Link to="/catalogo">Ver catálogo</Link>
