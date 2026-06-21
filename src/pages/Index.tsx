@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { CATEGORIES, PRODUCTS, STORE } from "@/lib/products";
 import { InstagramFeed } from "@/components/InstagramFeed";
-import { PromoMedia } from "@/components/PromoMedia";
+import { PromoMedia, useHeroMedia } from "@/components/PromoMedia";
 
 const CATEGORY_ICONS: Record<string, typeof Flower2> = {
   flores: Flower2,
@@ -26,6 +26,7 @@ const CATEGORY_IMAGES: Record<string, string> = {
 export default function Index() {
   const featured = PRODUCTS.slice(0, 8);
   const hasProducts = PRODUCTS.length > 0;
+  const { media: heroMedia, loading: heroLoading } = useHeroMedia();
 
   // Occasion items — each opens WhatsApp with a pre-filled concierge message
   const OCCASIONS = [
@@ -136,24 +137,29 @@ export default function Index() {
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="relative"
-          >
-            <PromoMedia />
-            <div className="hidden md:flex absolute -top-4 -right-4 items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 shadow-elegant">
-              <span className="h-1.5 w-1.5 rounded-full bg-gold" />
-              <span className="text-xs font-medium tracking-wider uppercase">Hecho a mano</span>
-            </div>
-            {/* Price anchor floating badge */}
-            <div className="absolute -bottom-4 -left-4 hidden md:flex flex-col items-center justify-center rounded-2xl bg-background border border-border shadow-elegant px-4 py-3">
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Desde</span>
-              <span className="font-display text-xl font-bold">$5.000</span>
-              <span className="text-[10px] text-muted-foreground">ARS</span>
-            </div>
-          </motion.div>
+          {(heroLoading || heroMedia) && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="relative"
+            >
+              <PromoMedia media={heroMedia} loading={heroLoading} />
+              {heroMedia && (
+                <>
+                  <div className="hidden md:flex absolute -top-4 -right-4 items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 shadow-elegant">
+                    <span className="h-1.5 w-1.5 rounded-full bg-gold" />
+                    <span className="text-xs font-medium tracking-wider uppercase">Hecho a mano</span>
+                  </div>
+                  <div className="absolute -bottom-4 -left-4 hidden md:flex flex-col items-center justify-center rounded-2xl bg-background border border-border shadow-elegant px-4 py-3">
+                    <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Desde</span>
+                    <span className="font-display text-xl font-bold">$5.000</span>
+                    <span className="text-[10px] text-muted-foreground">ARS</span>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          )}
         </div>
 
         {/* Argentine flag accent strip */}
@@ -161,30 +167,31 @@ export default function Index() {
       </section>
 
       {/* OCCASION STRIP */}
-      <section className="border-y border-border/60 bg-card/40 py-5">
+      <section className="border-y border-border/60 bg-card/40 py-5 overflow-hidden">
         <style>{`
-          @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-          .occasion-scroll { animation: scroll-left 20s linear infinite; }
-          .occasion-scroll:hover { animation-play-state: paused; }
+          @keyframes occasion-loop { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+          .occasion-track { display: flex; gap: 0.5rem; width: max-content; animation: occasion-loop 24s linear infinite; }
+          .occasion-track:hover { animation-play-state: paused; }
         `}</style>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="flex items-center gap-1 mb-3">
             <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">¿Cuál es la ocasión?</span>
           </div>
-          <div className="flex gap-2 overflow-x-hidden pb-1 scrollbar-none snap-x snap-mandatory occasion-scroll">
-            {OCCASIONS.map((o) => (
-              <a
-                key={o.label}
-                href={`https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(o.msg)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="snap-start shrink-0 inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-foreground hover:text-background hover:border-foreground transition-all whitespace-nowrap"
-              >
-                <span>{o.emoji}</span>
-                {o.label}
-              </a>
-            ))}
-          </div>
+        </div>
+        {/* Duplicate items so the loop is seamless */}
+        <div className="occasion-track">
+          {[...OCCASIONS, ...OCCASIONS].map((o, i) => (
+            <a
+              key={`${o.label}-${i}`}
+              href={`https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent(o.msg)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-foreground hover:text-background hover:border-foreground transition-all whitespace-nowrap"
+            >
+              <span>{o.emoji}</span>
+              {o.label}
+            </a>
+          ))}
         </div>
       </section>
 

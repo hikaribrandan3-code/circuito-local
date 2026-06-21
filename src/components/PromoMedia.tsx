@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import { ImageIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-type Media = { url: string; type: "image" | "video" };
+export type HeroMedia = { url: string; type: "image" | "video" };
 
-export function PromoMedia() {
-  const [media, setMedia] = useState<Media | null>(null);
+export function useHeroMedia() {
+  const [media, setMedia] = useState<HeroMedia | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,25 +24,20 @@ export function PromoMedia() {
       });
   }, []);
 
+  return { media, loading };
+}
+
+export function PromoMedia({ media, loading }: { media: HeroMedia | null; loading: boolean }) {
   if (loading) {
     return (
-      <div className="relative aspect-video overflow-hidden rounded-3xl bg-secondary animate-pulse shadow-elegant" />
+      <div className="relative w-full aspect-video overflow-hidden rounded-3xl bg-secondary animate-pulse shadow-elegant" />
     );
   }
 
-  if (!media) {
-    return (
-      <div className="relative aspect-video overflow-hidden rounded-3xl bg-secondary border-2 border-dashed border-border shadow-elegant flex flex-col items-center justify-center gap-3 text-muted-foreground">
-        <ImageIcon className="h-10 w-10 opacity-30" />
-        <p className="text-xs text-center opacity-50 px-4">
-          Agregá una imagen o video desde el panel admin → Info → Media del Hero
-        </p>
-      </div>
-    );
-  }
+  if (!media) return null;
 
   return (
-    <div className="relative aspect-video overflow-hidden rounded-3xl shadow-elegant bg-secondary">
+    <div className="relative w-full aspect-video overflow-hidden rounded-3xl shadow-elegant bg-secondary">
       {media.type === "video" ? (
         <video
           className="h-full w-full object-cover"

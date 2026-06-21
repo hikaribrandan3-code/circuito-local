@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, ChevronDown, ChevronUp, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, ChevronDown, ChevronUp, Image as ImageIcon, Upload, Instagram } from "lucide-react";
 
 type Category = { id: string; name: string; description: string | null; display_order: number; image_url?: string | null };
 type Item = { id: string; name: string; description: string | null; price: number; stock_status: string; category_id: string };
 type ItemImage = { id: string; item_id: string; image_url: string; display_order: number };
 
-type View = "categories" | "items";
+type GalleryPost = { id: string; image_url: string; caption: string | null; display_order: number };
+type View = "categories" | "items" | "gallery";
 
 export default function ShopTab({ userId }: { userId: string }) {
   const [view, setView] = useState<View>("items");
@@ -20,6 +21,8 @@ export default function ShopTab({ userId }: { userId: string }) {
   const [images, setImages] = useState<Record<string, ItemImage[]>>({});
   const [selectedCat, setSelectedCat] = useState<string>("all");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [galleryPosts, setGalleryPosts] = useState<GalleryPost[]>([]);
+  const [galleryUploading, setGalleryUploading] = useState(false);
 
   // Category form
   const [editingCat, setEditingCat] = useState<Partial<Category> | null>(null);
@@ -30,6 +33,7 @@ export default function ShopTab({ userId }: { userId: string }) {
 
   useEffect(() => { loadCategories(); }, [userId]);
   useEffect(() => { loadItems(); }, [userId]);
+  useEffect(() => { loadGallery(); }, [userId]);
 
   async function loadCategories() {
     const { data } = await supabase.from("categories").select("*").eq("user_id", userId).order("display_order");
@@ -49,6 +53,46 @@ export default function ShopTab({ userId }: { userId: string }) {
       });
       setImages(map);
     }
+  }
+
+  // --- GALLERY ---
+  async function loadGallery() {
+    const { data } = await supabase
+      .from("gallery_posts")
+      .select("id, image_url, caption, display_order")
+      .eq("user_id", userId)
+      .order("display_order", { ascending: true });
+    setGalleryPosts((data ?? []) as GalleryPost[]);
+  }
+
+  async function uploadGalleryPhoto(file: File | undefined) {
+    if (!file) return;
+    setGalleryUploading(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${userId}/${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("gallery").upload(path, file);
+      if (uploadErr) { toast.error(uploadErr.message); return; }
+      const { data } = supabase.storage.from("gallery").getPublicUrl(path);
+      const { error: insertErr } = await supabase.from("gallery_posts").insert({
+        user_id: userId,
+        image_url: data.publicUrl,
+        caption: null,
+        display_order: galleryPosts.length,
+      });
+      if (insertErr) { toast.error(insertErr.message); return; }
+      toast.success("Foto subida");
+      loadGallery();
+    } finally {
+      setGalleryUploading(false);
+    }
+  }
+
+  async function deleteGalleryPost(id: string) {
+    if (!confirm("¿Eliminar esta foto?")) return;
+    await supabase.from("gallery_posts").delete().eq("id", id);
+    toast.success("Eliminada");
+    loadGallery();
   }
 
   // --- CATEGORIES ---
@@ -164,8 +208,61 @@ export default function ShopTab({ userId }: { userId: string }) {
           <Button size="sm" variant={view === "categories" ? "default" : "outline"} onClick={() => setView("categories")} className="rounded-full text-xs">
             Categorías
           </Button>
+          <Button size="sm" variant={view === "gallery" ? "default" : "outline"} onClick={() => setView("gallery")} className="rounded-full text-xs">
+            <Instagram className="h-3 w-3 mr-1" /> Galería
+          </Button>
         </div>
       </div>
+
+      {/* ── GALLERY VIEW ── */}
+      {view === "gallery" && (
+        <div className="space-y-4">
+          <div className="rounded-2xl bg-card border border-border p-5 shadow-soft space-y-4">
+            <div>
+              <h2 className="font-display text-xl">Fotos de Instagram</h2>
+              <p className="text-xs text-muted-foreground mt-1">Estas fotos aparecen en la sección Instagram de la página principal. Máximo 6 se muestran.</p>
+            </div>
+
+            {/* Upload button */}
+            <label className="flex items-center justify-center gap-2 px-4 py-5 rounded-xl border-2 border-dashed border-border hover:border-foreground hover:bg-secondary transition-all cursor-pointer">
+              {galleryUploading ? (
+                <span className="text-sm text-muted-foreground">Subiendo...</span>
+              ) : (
+                <>
+                  <Upload className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Subir foto</span>
+                </>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                disabled={galleryUploading}
+                onChange={(e) => uploadGalleryPhoto(e.target.files?.[0])}
+                className="hidden"
+              />
+            </label>
+
+            {/* Grid preview */}
+            {galleryPosts.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2">
+                {galleryPosts.map((post) => (
+                  <div key={post.id} className="relative aspect-square group">
+                    <img src={post.image_url} alt="" className="h-full w-full object-cover rounded-xl border border-border" />
+                    <button
+                      onClick={() => deleteGalleryPost(post.id)}
+                      className="absolute top-1 right-1 h-6 w-6 rounded-full bg-destructive text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground text-center py-4">No hay fotos todavía. Subí la primera.</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── CATEGORIES VIEW ── */}
       {view === "categories" && (
