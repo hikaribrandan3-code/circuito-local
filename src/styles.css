@@ -42,19 +42,19 @@
 :root {
   --radius: 0.75rem;
 
-  /* Cream paper background, tango ink foreground */
-  --background: oklch(0.975 0.012 85);
-  --foreground: oklch(0.18 0.012 60);
+  /* Pure white background, neutral black foreground (matches white footer) */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.18 0 0);
 
-  --card: oklch(0.995 0.006 85);
-  --card-foreground: oklch(0.18 0.012 60);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0 0);
 
-  --popover: oklch(0.995 0.006 85);
-  --popover-foreground: oklch(0.18 0.012 60);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0 0);
 
-  /* Tango ink primary */
-  --primary: oklch(0.18 0.012 60);
-  --primary-foreground: oklch(0.98 0.006 85);
+  /* Neutral black primary */
+  --primary: oklch(0.18 0 0);
+  --primary-foreground: oklch(1 0 0);
 
   /* Sky blue from Argentine flag */
   --celeste: oklch(0.78 0.09 235);
@@ -67,11 +67,11 @@
   --accent: oklch(0.78 0.13 80);
   --accent-foreground: oklch(0.18 0.012 60);
 
-  --secondary: oklch(0.94 0.015 80);
-  --secondary-foreground: oklch(0.22 0.012 60);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
 
-  --muted: oklch(0.94 0.012 80);
-  --muted-foreground: oklch(0.48 0.012 60);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.45 0 0);
 
   --destructive: oklch(0.55 0.2 25);
   --destructive-foreground: oklch(1 0 0);
@@ -79,20 +79,19 @@
   --success: oklch(0.58 0.13 145);
   --success-foreground: oklch(1 0 0);
 
-  --border: oklch(0.88 0.012 75);
-  --input: oklch(0.96 0.008 80);
+  --border: oklch(0.90 0 0);
+  --input: oklch(0.97 0 0);
   --ring: oklch(0.78 0.09 235);
 
-  /* Layered cream radial backdrop */
-  --gradient-radial: radial-gradient(circle at 15% 0%, oklch(0.78 0.09 235 / 12%), transparent 55%),
-                     radial-gradient(circle at 90% 100%, oklch(0.78 0.13 80 / 10%), transparent 55%);
-  --gradient-warm: linear-gradient(135deg, oklch(0.96 0.02 80), oklch(0.92 0.04 70));
+  /* Flat white — no warm wash (matches white footer) */
+  --gradient-radial: none;
+  --gradient-warm: linear-gradient(135deg, oklch(0.97 0 0), oklch(0.94 0 0));
 
-  --shadow-soft: 0 1px 2px oklch(0.18 0.012 60 / 6%), 0 8px 24px -12px oklch(0.18 0.012 60 / 14%);
-  --shadow-elegant: 0 20px 60px -30px oklch(0.18 0.012 60 / 30%);
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 6%), 0 8px 24px -12px oklch(0 0 0 / 14%);
+  --shadow-elegant: 0 20px 60px -30px oklch(0 0 0 / 30%);
 
-  --glass-bg: oklch(0.99 0.006 85 / 78%);
-  --glass-border: oklch(0.85 0.012 75 / 70%);
+  --glass-bg: oklch(1 0 0 / 80%);
+  --glass-border: oklch(0.90 0 0 / 70%);
 }
 
 /* ============================================
@@ -189,7 +188,7 @@
     border: 1px solid var(--glass-border);
   }
   .glass-strong {
-    background: oklch(0.98 0.006 85 / 90%);
+    background: oklch(1 0 0 / 90%);
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
     border: 1px solid var(--glass-border);

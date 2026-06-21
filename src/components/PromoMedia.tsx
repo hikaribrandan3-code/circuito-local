@@ -19,7 +19,7 @@ const PROMO: {
 
 export function PromoMedia() {
   return (
-    <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-3xl shadow-elegant bg-secondary">
+    <div className="relative aspect-video overflow-hidden rounded-3xl shadow-elegant bg-secondary">
       {PROMO.type === "video" ? (
         <video
           className="h-full w-full object-cover"
