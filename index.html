@@ -24,6 +24,18 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Apply dark mode before paint to avoid white flash (FOUC) -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("asb-dark-mode");
+          var isDark = stored !== null
+            ? stored === "true"
+            : window.matchMedia("(prefers-color-scheme: dark)").matches;
+          if (isDark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

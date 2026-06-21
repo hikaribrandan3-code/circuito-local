@@ -50,7 +50,7 @@ export default function Index() {
           >
             {/* Urgency badge */}
             <div className="flex flex-wrap items-center gap-2 mb-4">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 text-green-700 border border-green-200 px-3 py-1 text-xs font-semibold">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 text-green-700 border border-green-200 dark:bg-green-950 dark:text-green-300 dark:border-green-900 px-3 py-1 text-xs font-semibold">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
                 Enviamos hoy en Córdoba Capital
               </span>

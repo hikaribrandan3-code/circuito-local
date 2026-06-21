@@ -1,9 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingBag, Menu } from "lucide-react";
+import { Search, ShoppingBag, Menu, Sun, Moon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/lib/cart";
+import { useDarkMode } from "@/contexts/DarkModeContext";
 import { CATEGORIES, STORE } from "@/lib/products";
 import {
   DropdownMenu,
@@ -14,6 +15,7 @@ import {
 
 export function Header() {
   const { count } = useCart();
+  const { isDark, toggle } = useDarkMode();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
@@ -66,6 +68,14 @@ export function Header() {
         <div className="flex items-center gap-2 ml-auto">
           <Button asChild className="hidden sm:inline-flex bg-foreground text-background hover:bg-foreground/90 font-medium rounded-full">
             <Link to="/contacto">Hacé tu pedido</Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggle}
+            aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
+          >
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
           <Button variant="ghost" size="icon" asChild className="relative">
             <Link to="/carrito" aria-label="Carrito">
