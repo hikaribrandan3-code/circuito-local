@@ -79,22 +79,59 @@ export default function Index() {
                 href={`https://wa.me/${STORE.whatsapp}?text=${encodeURIComponent("Hola! Me gustaría que me ayudes a elegir un regalo especial 🎁")}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-lg hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-3 rounded-full px-7 py-3.5 text-lg font-bold text-white shadow-xl hover:scale-105 active:scale-95 transition-transform"
                 style={{ background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" }}
               >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
                 Hablá con tu Personal Shopper
               </a>
             </div>
 
-            {/* Trust micro-signals */}
-            <div className="mt-6 flex flex-wrap gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" /> Listo en 2hs</span>
-              <span className="flex items-center gap-1.5">🎀 Empaque sin cargo</span>
-              <span className="flex items-center gap-1.5">✍️ Tarjeta a mano</span>
-              <span className="flex items-center gap-1.5">🚚 Todo el país</span>
+            {/* Trust micro-signals — scrolling marquee */}
+            <style>{`
+              @keyframes marquee {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+              }
+              .marquee-container { overflow: hidden; }
+              .marquee { display: flex; gap: 2.5rem; animation: marquee 15s linear infinite; white-space: nowrap; }
+              .marquee:hover { animation-play-state: paused; }
+            `}</style>
+            <div className="mt-8 marquee-container bg-foreground/5 rounded-2xl border border-border/50 py-3 px-4">
+              <div className="marquee">
+                {/* Repeat twice for seamless loop */}
+                {[...Array(2)].map((_, rep) => (
+                  <div key={rep} className="flex gap-2.5 items-center">
+                    <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <Zap className="h-4 w-4 text-amber-500" />
+                      Listo en 2hs
+                    </span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
+                    <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8m3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                      </svg>
+                      Empaque elegante
+                    </span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
+                    <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                      </svg>
+                      Tarjeta a mano
+                    </span>
+                    <span className="h-1.5 w-1.5 rounded-full bg-foreground/40" />
+                    <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="1"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"/>
+                      </svg>
+                      Envío todo el país
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
 
@@ -130,11 +167,16 @@ export default function Index() {
 
       {/* OCCASION STRIP */}
       <section className="border-y border-border/60 bg-card/40 py-5">
+        <style>{`
+          @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+          .occasion-scroll { animation: scroll-left 20s linear infinite; }
+          .occasion-scroll:hover { animation-play-state: paused; }
+        `}</style>
         <div className="mx-auto max-w-7xl px-4 lg:px-8">
           <div className="flex items-center gap-1 mb-3">
             <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">¿Cuál es la ocasión?</span>
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory">
+          <div className="flex gap-2 overflow-x-hidden pb-1 scrollbar-none snap-x snap-mandatory occasion-scroll">
             {OCCASIONS.map((o) => (
               <a
                 key={o.label}
