@@ -1,25 +1,25 @@
-// FOOTER OPTION 1: Dark Spotify Minimal
+// FOOTER OPTION 1: Responsive (Coffee/Brown light mode, Dark Spotify dark mode)
 export const FooterOption1 = () => (
-  <footer className="bg-black text-white">
+  <footer className="bg-amber-50 text-foreground dark:bg-black dark:text-white">
     <div className="mx-auto max-w-7xl px-6 lg:px-8 py-12 grid gap-12 md:grid-cols-4">
       {/* Brand */}
       <div className="space-y-4">
-        <img src="/logo.svg" alt="ASB Store" className="h-8 w-8 object-contain filter invert" />
+        <img src="/logo.svg" alt="ASB Store" className="h-8 w-8 object-contain dark:filter dark:invert" />
         <p className="font-display text-lg font-bold">ASB Store</p>
-        <p className="text-gray-400 text-sm leading-relaxed">Regalos boutique armados a mano en Córdoba Capital.</p>
+        <p className="text-amber-700 dark:text-gray-400 text-sm leading-relaxed">Regalos boutique armados a mano en Córdoba Capital.</p>
       </div>
 
       {/* Contact */}
       <div className="space-y-4">
-        <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">Contacto</p>
+        <p className="text-xs uppercase tracking-widest text-amber-900 dark:text-gray-500 font-bold">Contacto</p>
         <div className="space-y-3">
-          <a href="https://wa.me/543516459100" target="_blank" rel="noreferrer" className="block text-sm hover:text-green-400 transition">
+          <a href="https://wa.me/543516459100" target="_blank" rel="noreferrer" className="block text-sm text-amber-900 dark:text-white hover:text-green-600 dark:hover:text-green-400 transition">
             WhatsApp
           </a>
-          <a href="tel:3516459100" className="block text-sm hover:text-gray-300 transition">
+          <a href="tel:3516459100" className="block text-sm text-amber-900 dark:text-white dark:hover:text-gray-300 hover:text-amber-700 transition">
             3516459100
           </a>
-          <a href="https://www.instagram.com/asb.tore/" target="_blank" rel="noreferrer" className="block text-sm hover:text-pink-400 transition">
+          <a href="https://www.instagram.com/asb.tore/" target="_blank" rel="noreferrer" className="block text-sm text-amber-900 dark:text-white hover:text-pink-600 dark:hover:text-pink-400 transition">
             Instagram @asb.tore
           </a>
         </div>
@@ -27,25 +27,25 @@ export const FooterOption1 = () => (
 
       {/* Navigation */}
       <div className="space-y-4">
-        <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">Tienda</p>
+        <p className="text-xs uppercase tracking-widest text-amber-900 dark:text-gray-500 font-bold">Tienda</p>
         <div className="space-y-3">
-          <a href="/catalogo" className="block text-sm hover:text-gray-300 transition">Catálogo</a>
-          <a href="/contacto" className="block text-sm hover:text-gray-300 transition">Contacto</a>
-          <a href="/admin/login" className="block text-sm text-gray-500 hover:text-gray-300 transition">Admin</a>
+          <a href="/catalogo" className="block text-sm text-amber-900 dark:text-white hover:text-amber-700 dark:hover:text-gray-300 transition">Catálogo</a>
+          <a href="/contacto" className="block text-sm text-amber-900 dark:text-white hover:text-amber-700 dark:hover:text-gray-300 transition">Contacto</a>
+          <a href="/admin/login" className="block text-sm text-amber-600 dark:text-gray-500 hover:text-amber-700 dark:hover:text-gray-300 transition">Admin</a>
         </div>
       </div>
 
       {/* Hours */}
       <div className="space-y-4">
-        <p className="text-xs uppercase tracking-widest text-gray-500 font-bold">Atención</p>
-        <div className="space-y-2 text-sm text-gray-400">
+        <p className="text-xs uppercase tracking-widest text-amber-900 dark:text-gray-500 font-bold">Atención</p>
+        <div className="space-y-2 text-sm text-amber-800 dark:text-gray-400">
           <p>Lun - Sáb · 9:30 a 19:30</p>
           <p>Envío en Córdoba en el día</p>
           <p className="text-xs">Pedí antes de las 16hs</p>
         </div>
       </div>
     </div>
-    <div className="border-t border-gray-800 py-6 text-center text-xs text-gray-500">
+    <div className="border-t border-amber-200 dark:border-gray-800 py-6 text-center text-xs text-amber-700 dark:text-gray-500">
       © {new Date().getFullYear()} ASB Store · Hecho con cariño en Argentina 🇦🇷
     </div>
   </footer>
