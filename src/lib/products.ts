@@ -38,5 +38,5 @@ export const STORE = {
   tagline: "Boutique de regalos · Córdoba Capital",
   phone: "3516459100",
   whatsapp: "543516459100", // digits only for wa.me
-  instagram: "https://instagram.com/asbstore",
+  instagram: "https://www.instagram.com/asb.tore/",
 };

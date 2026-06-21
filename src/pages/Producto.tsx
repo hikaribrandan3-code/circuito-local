@@ -174,14 +174,14 @@ export default function Producto() {
             <>
               <button
                 onClick={() => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-background/60 hover:bg-background text-foreground p-2 transition-all opacity-0 group-hover:opacity-100"
+                className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/80 hover:bg-background text-foreground p-2.5 transition-all shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100"
                 aria-label="Foto anterior"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={() => setCurrentImageIndex((prev) => (prev + 1) % images.length)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-background/60 hover:bg-background text-foreground p-2 transition-all opacity-0 group-hover:opacity-100"
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/80 hover:bg-background text-foreground p-2.5 transition-all shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100"
                 aria-label="Foto siguiente"
               >
                 <ChevronRight className="h-5 w-5" />

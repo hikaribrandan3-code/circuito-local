@@ -1,7 +1,8 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, Phone, Instagram, ShoppingBag } from "lucide-react";
+import { useCart } from "@/lib/cart";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +56,7 @@ const getImageForCategory = (category: DbCategory): string => {
 const MAX_PRICE = 1000000;
 
 export default function Catalogo() {
+  const { count } = useCart();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const qParam = searchParams.get("q") ?? "";
@@ -223,8 +225,22 @@ export default function Catalogo() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 lg:px-8 py-10">
+      {/* Empty cart pill */}
+      {count === 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-4 flex justify-center"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-1.5 text-xs text-muted-foreground">
+            <ShoppingBag className="h-3.5 w-3.5" />
+            Tu carrito está vacío
+          </span>
+        </motion.div>
+      )}
+
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Tienda</span>
             <h1 className="font-display text-4xl md:text-5xl mt-1">Catálogo</h1>
@@ -232,18 +248,34 @@ export default function Catalogo() {
               {filtered.length} {filtered.length === 1 ? "regalo disponible" : "regalos disponibles"}
             </p>
           </div>
-          <div className="flex flex-col gap-1 text-right">
-            {ownerPhone && (
-              <a href={`https://wa.me/${ownerPhone.replace(/\D/g, "")}`} className="text-xs text-foreground hover:text-foreground/70 transition-colors">
-                📱 {ownerPhone}
-              </a>
-            )}
-            {instagramUrl && (
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-foreground hover:text-foreground/70 transition-colors">
-                📸 Instagram
-              </a>
-            )}
-          </div>
+          {(ownerPhone || instagramUrl) && (
+            <div className="flex flex-row sm:flex-col gap-3 sm:gap-2 sm:items-end">
+              {ownerPhone && (
+                <a
+                  href={`https://wa.me/${ownerPhone.replace(/\D/g, "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-foreground hover:text-background transition-all"
+                >
+                  <Phone className="h-4 w-4 shrink-0" />
+                  {ownerPhone}
+                </a>
+              )}
+              {instagramUrl && (
+                <a
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-full border border-pink-200 bg-pink-50 px-4 py-2 text-sm font-semibold text-pink-700 hover:bg-pink-600 hover:text-white transition-all"
+                >
+                  <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                  @asb.tore
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </motion.div>
 

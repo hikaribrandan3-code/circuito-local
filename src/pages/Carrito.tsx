@@ -20,11 +20,11 @@ export default function Carrito() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-secondary">
-          <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-secondary">
+          <span className="text-5xl select-none">😢</span>
         </div>
         <h1 className="mt-6 font-display text-4xl">Tu carrito está vacío</h1>
-        <p className="mt-2 text-muted-foreground">Explorá el catálogo y encontrá el regalo perfecto.</p>
+        <p className="mt-2 text-muted-foreground">Nada por aquí todavía... explorá el catálogo y encontrá el regalo perfecto.</p>
         <Button asChild className="mt-8 bg-foreground text-background hover:bg-foreground/90 rounded-full">
           <Link to="/catalogo">Ver catálogo</Link>
         </Button>
