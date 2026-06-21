@@ -44,11 +44,12 @@ export default function Index() {
     <div>
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="relative mx-auto max-w-7xl px-4 lg:px-8 pt-10 pb-12 md:pt-20 md:pb-20 grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+        <div className="relative mx-auto max-w-7xl px-4 lg:px-8 pt-10 pb-12 md:pt-20 md:pb-20 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
+            className="min-w-0"
           >
             {/* Urgency badge */}
             <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -142,7 +143,7 @@ export default function Index() {
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="relative"
+              className="relative min-w-0 w-full overflow-hidden"
             >
               <PromoMedia media={heroMedia} loading={heroLoading} />
               {heroMedia && (

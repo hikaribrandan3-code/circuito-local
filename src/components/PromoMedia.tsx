@@ -37,10 +37,12 @@ export function PromoMedia({ media, loading }: { media: HeroMedia | null; loadin
   if (!media) return null;
 
   return (
-    <div className="relative w-full aspect-video overflow-hidden rounded-3xl shadow-elegant bg-secondary">
+    <div className="relative w-full overflow-hidden rounded-3xl shadow-elegant bg-secondary"
+      style={{ aspectRatio: "16/9", maxHeight: "clamp(200px, 50vw, 560px)" }}
+    >
       {media.type === "video" ? (
         <video
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
           src={media.url}
           autoPlay
           muted
@@ -51,7 +53,7 @@ export function PromoMedia({ media, loading }: { media: HeroMedia | null; loadin
         <img
           src={media.url}
           alt="Hero"
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
       )}
     </div>
