@@ -141,7 +141,7 @@ export default function Index() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="relative"
           >
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl shadow-elegant">
+            <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-3xl shadow-elegant">
               <img
                 src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=900&q=80"
                 alt="Ramo artesanal de peonías"
