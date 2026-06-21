@@ -2,14 +2,14 @@ import { Link } from "react-router-dom";
 
 // FOOTER OPTION 1 — App-style centered column.
 // Borrows the Contact-page card aesthetic (IG gradient + WhatsApp cards).
-// Coffee/amber in light mode, Spotify-black in dark mode. Lock = admin gateway.
+// White + bold black in light mode, Spotify-black in dark mode. Lock = admin gateway.
 export const FooterOption1 = () => (
-  <footer className="bg-amber-50 text-foreground dark:bg-black dark:text-white">
+  <footer className="bg-white text-black dark:bg-black dark:text-white border-t border-black/10 dark:border-transparent">
     <div className="mx-auto max-w-md px-6 py-14 flex flex-col items-center text-center">
       {/* Brand */}
       <img src="/logo.svg" alt="ASB Store" className="h-12 w-12 object-contain dark:filter dark:invert" />
       <p className="mt-3 font-display text-2xl font-bold">ASB Store</p>
-      <p className="mt-1 text-sm text-amber-700 dark:text-gray-400 max-w-xs">
+      <p className="mt-1 text-sm font-semibold text-black dark:text-gray-400 max-w-xs">
         Regalos boutique armados a mano en Córdoba Capital.
       </p>
 
@@ -49,14 +49,14 @@ export const FooterOption1 = () => (
       </div>
 
       {/* Nav links */}
-      <div className="mt-8 flex items-center justify-center gap-6 text-sm font-medium">
-        <Link to="/catalogo" className="hover:text-amber-700 dark:hover:text-gray-300 transition">Catálogo</Link>
-        <Link to="/contacto" className="hover:text-amber-700 dark:hover:text-gray-300 transition">Contacto</Link>
-        <Link to="/carrito" className="hover:text-amber-700 dark:hover:text-gray-300 transition">Carrito</Link>
+      <div className="mt-8 flex items-center justify-center gap-6 text-sm font-bold">
+        <Link to="/catalogo" className="text-black dark:text-white hover:opacity-60 dark:hover:text-gray-300 transition">Catálogo</Link>
+        <Link to="/contacto" className="text-black dark:text-white hover:opacity-60 dark:hover:text-gray-300 transition">Contacto</Link>
+        <Link to="/carrito" className="text-black dark:text-white hover:opacity-60 dark:hover:text-gray-300 transition">Carrito</Link>
       </div>
 
       {/* Hours */}
-      <p className="mt-6 text-xs text-amber-700 dark:text-gray-500">
+      <p className="mt-6 text-xs font-semibold text-black dark:text-gray-500">
         Lun a Sáb · 9:30 a 19:30 &nbsp;·&nbsp; Envío hoy en Córdoba
       </p>
 
@@ -64,7 +64,7 @@ export const FooterOption1 = () => (
       <Link
         to="/admin/login"
         aria-label="Acceso administrador"
-        className="mt-8 inline-flex items-center justify-center h-10 w-10 rounded-full border border-amber-300 dark:border-gray-700 text-amber-600 dark:text-gray-500 hover:bg-amber-100 dark:hover:bg-gray-900 hover:text-amber-800 dark:hover:text-gray-300 transition"
+        className="mt-8 inline-flex items-center justify-center h-10 w-10 rounded-full border border-black/20 dark:border-gray-700 text-black dark:text-gray-500 hover:bg-black hover:text-white dark:hover:bg-gray-900 dark:hover:text-gray-300 transition"
       >
         <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
           <path fillRule="evenodd" clipRule="evenodd" d="M4 6V4C4 1.79086 5.79086 0 8 0C10.2091 0 12 1.79086 12 4V6H14V16H2V6H4ZM6 4C6 2.89543 6.89543 2 8 2C9.10457 2 10 2.89543 10 4V6H6V4ZM7 13V9H9V13H7Z" />
@@ -72,7 +72,7 @@ export const FooterOption1 = () => (
       </Link>
 
       {/* Copyright */}
-      <p className="mt-8 text-xs text-amber-700 dark:text-gray-500">
+      <p className="mt-8 text-xs font-semibold text-black dark:text-gray-500">
         © {new Date().getFullYear()} ASB Store · Hecho con cariño en Argentina 🇦🇷
       </p>
     </div>
