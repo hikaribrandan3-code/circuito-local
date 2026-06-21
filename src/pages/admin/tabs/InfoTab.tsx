@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Download, Image, Printer, Save, Video } from "lucide-react";
+import { Download, Image, Printer, Save, Upload, Video, X } from "lucide-react";
 
 type Profile = {
   id: string;
@@ -92,6 +92,49 @@ export default function InfoTab({ userId }: { userId: string }) {
   }
 
   const set = (k: keyof Profile, v: string) => setProfile((p) => ({ ...p, [k]: v }));
+
+  async function handleMediaUpload(file: File | undefined) {
+    if (!file) return;
+
+    try {
+      setSaving(true);
+      const ext = file.name.split(".").pop();
+      const path = `${userId}/hero.${ext}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from("hero-media")
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) {
+        toast.error(uploadError.message);
+        setSaving(false);
+        return;
+      }
+
+      // Get public URL
+      const { data } = supabase.storage.from("hero-media").getPublicUrl(path);
+      const mediaUrl = data.publicUrl;
+
+      // Save to profiles
+      const { error: updateError } = await supabase.from("profiles").upsert({
+        id: userId,
+        hero_media_url: mediaUrl,
+        hero_media_type: profile.hero_media_type,
+      });
+
+      if (updateError) {
+        toast.error(updateError.message);
+      } else {
+        set("hero_media_url", mediaUrl);
+        toast.success("Media subida exitosamente");
+      }
+    } catch (err) {
+      toast.error("Error al subir el archivo");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const truncateText = (text: string, lines: number = 2) => {
     const lineArray = text.split('\n').slice(0, lines);
@@ -196,23 +239,37 @@ export default function InfoTab({ userId }: { userId: string }) {
           </button>
         </div>
 
-        <div className="space-y-2">
-          <Label>{profile.hero_media_type === "video" ? "URL del video (.mp4)" : "URL de la imagen"}</Label>
-          <Input
-            value={profile.hero_media_url ?? ""}
-            onChange={(e) => set("hero_media_url", e.target.value)}
-            placeholder={
-              profile.hero_media_type === "video"
-                ? "https://ejemplo.com/mi-video.mp4"
-                : "https://ejemplo.com/mi-foto.jpg"
-            }
-            className="rounded-full font-mono text-xs"
-          />
-          <p className="text-[10px] text-muted-foreground">
-            {profile.hero_media_type === "video"
-              ? "Usá un link directo a un .mp4. Podés subir el archivo a /public y usar /mi-video.mp4"
-              : "Pegá la URL de cualquier imagen. También podés usar /images/mi-foto.jpg si la subís a /public"}
-          </p>
+        <div className="space-y-3">
+          <Label>
+            {profile.hero_media_type === "video" ? "Subir video (.mp4)" : "Subir imagen"}
+          </Label>
+          <div className="flex flex-col gap-2">
+            <label className="flex items-center justify-center gap-2 px-4 py-6 rounded-xl border-2 border-dashed border-border hover:border-foreground hover:bg-secondary transition-all cursor-pointer">
+              <Upload className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {profile.hero_media_type === "video"
+                  ? "Hacer clic para subir un .mp4"
+                  : "Hacer clic para subir una imagen"}
+              </span>
+              <input
+                type="file"
+                accept={profile.hero_media_type === "video" ? "video/mp4,.mp4" : "image/*"}
+                onChange={(e) => handleMediaUpload(e.target.files?.[0])}
+                className="hidden"
+              />
+            </label>
+            {profile.hero_media_url && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => set("hero_media_url", "")}
+                className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <X className="h-4 w-4 mr-2" /> Quitar archivo
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Live preview */}
@@ -239,14 +296,6 @@ export default function InfoTab({ userId }: { userId: string }) {
           </div>
         )}
 
-        <Button
-          type="button"
-          onClick={saveProfile}
-          disabled={saving}
-          className="w-full rounded-full bg-foreground text-background hover:bg-foreground/90"
-        >
-          <Save className="h-4 w-4 mr-2" /> {saving ? "Guardando..." : "Guardar media"}
-        </Button>
       </div>
 
       {/* Card Design Selector */}
