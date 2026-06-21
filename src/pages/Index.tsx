@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { CATEGORIES, PRODUCTS, STORE } from "@/lib/products";
 import { InstagramFeed } from "@/components/InstagramFeed";
+import { PromoMedia } from "@/components/PromoMedia";
 
 const CATEGORY_ICONS: Record<string, typeof Flower2> = {
   flores: Flower2,
@@ -141,13 +142,7 @@ export default function Index() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="relative"
           >
-            <div className="relative aspect-square md:aspect-[4/5] overflow-hidden rounded-3xl shadow-elegant">
-              <img
-                src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=900&q=80"
-                alt="Ramo artesanal de peonías"
-                className="h-full w-full object-cover"
-              />
-            </div>
+            <PromoMedia />
             <div className="hidden md:flex absolute -top-4 -right-4 items-center gap-2 rounded-full bg-foreground text-background px-4 py-2 shadow-elegant">
               <span className="h-1.5 w-1.5 rounded-full bg-gold" />
               <span className="text-xs font-medium tracking-wider uppercase">Hecho a mano</span>

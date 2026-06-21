@@ -24,7 +24,7 @@ export default function App() {
           🎁 Regalos armados en 2hs &nbsp;·&nbsp; Enviamos hoy en Córdoba Capital &nbsp;·&nbsp; Pedí antes de las 16hs
         </div>
         <Header />
-        <main className="flex-1 pb-20 md:pb-0">
+        <main className="flex-1 pb-28 md:pb-0">
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/catalogo" element={<Catalogo />} />
