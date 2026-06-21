@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Download, Printer, Save } from "lucide-react";
+import { Download, Image, Printer, Save, Video } from "lucide-react";
 
 type Profile = {
   id: string;
@@ -17,6 +17,8 @@ type Profile = {
   description: string | null;
   instagram_handle: string | null;
   instagram_url: string | null;
+  hero_media_url: string | null;
+  hero_media_type: "image" | "video";
 };
 
 const CARD_DESIGNS = [
@@ -37,6 +39,8 @@ export default function InfoTab({ userId }: { userId: string }) {
     description: "",
     instagram_handle: "",
     instagram_url: "",
+    hero_media_url: "",
+    hero_media_type: "image",
   });
   const [saving, setSaving] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState(1);
@@ -50,8 +54,7 @@ export default function InfoTab({ userId }: { userId: string }) {
 
   const shopUrl = profile.shop_url || (typeof window !== "undefined" ? window.location.origin : "");
 
-  async function save(e: React.FormEvent) {
-    e.preventDefault();
+  async function saveProfile() {
     setSaving(true);
     const { error } = await supabase.from("profiles").upsert({
       id: userId,
@@ -62,10 +65,17 @@ export default function InfoTab({ userId }: { userId: string }) {
       description: profile.description,
       instagram_handle: profile.instagram_handle,
       instagram_url: profile.instagram_url,
+      hero_media_url: profile.hero_media_url || null,
+      hero_media_type: profile.hero_media_type,
     });
     setSaving(false);
     if (error) toast.error(error.message);
-    else toast.success("Información guardada");
+    else toast.success("Guardado");
+  }
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    saveProfile();
   }
 
   function downloadQR() {
@@ -152,6 +162,92 @@ export default function InfoTab({ userId }: { userId: string }) {
           <Save className="h-4 w-4 mr-2" /> {saving ? "Guardando..." : "Guardar cambios"}
         </Button>
       </form>
+
+      {/* Hero Media */}
+      <div className="rounded-2xl bg-card border border-border p-5 shadow-soft space-y-4">
+        <div>
+          <h2 className="font-display text-xl">Media del Hero</h2>
+          <p className="text-xs text-muted-foreground mt-1">La imagen o video que aparece en la página principal.</p>
+        </div>
+
+        {/* Type toggle */}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => set("hero_media_type", "image")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+              profile.hero_media_type === "image"
+                ? "bg-foreground text-background border-foreground"
+                : "bg-background text-muted-foreground border-border hover:border-foreground"
+            }`}
+          >
+            <Image className="h-4 w-4" /> Imagen
+          </button>
+          <button
+            type="button"
+            onClick={() => set("hero_media_type", "video")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+              profile.hero_media_type === "video"
+                ? "bg-foreground text-background border-foreground"
+                : "bg-background text-muted-foreground border-border hover:border-foreground"
+            }`}
+          >
+            <Video className="h-4 w-4" /> Video
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <Label>{profile.hero_media_type === "video" ? "URL del video (.mp4)" : "URL de la imagen"}</Label>
+          <Input
+            value={profile.hero_media_url ?? ""}
+            onChange={(e) => set("hero_media_url", e.target.value)}
+            placeholder={
+              profile.hero_media_type === "video"
+                ? "https://ejemplo.com/mi-video.mp4"
+                : "https://ejemplo.com/mi-foto.jpg"
+            }
+            className="rounded-full font-mono text-xs"
+          />
+          <p className="text-[10px] text-muted-foreground">
+            {profile.hero_media_type === "video"
+              ? "Usá un link directo a un .mp4. Podés subir el archivo a /public y usar /mi-video.mp4"
+              : "Pegá la URL de cualquier imagen. También podés usar /images/mi-foto.jpg si la subís a /public"}
+          </p>
+        </div>
+
+        {/* Live preview */}
+        {profile.hero_media_url && (
+          <div className="rounded-2xl overflow-hidden border border-border aspect-video bg-secondary">
+            {profile.hero_media_type === "video" ? (
+              <video
+                key={profile.hero_media_url}
+                src={profile.hero_media_url}
+                className="h-full w-full object-cover"
+                muted
+                autoPlay
+                loop
+                playsInline
+              />
+            ) : (
+              <img
+                key={profile.hero_media_url}
+                src={profile.hero_media_url}
+                alt="Preview"
+                className="h-full w-full object-cover"
+              />
+            )}
+          </div>
+        )}
+
+        <Button
+          type="button"
+          onClick={saveProfile}
+          disabled={saving}
+          className="w-full rounded-full bg-foreground text-background hover:bg-foreground/90"
+        >
+          <Save className="h-4 w-4 mr-2" /> {saving ? "Guardando..." : "Guardar media"}
+        </Button>
+      </div>
 
       {/* Card Design Selector */}
       <div className="rounded-2xl bg-card border border-border p-5 shadow-soft">

@@ -1,30 +1,53 @@
-// ============================================================
-//  PROMO MEDIA — the hero slot on the home page.
-//  To swap between a photo and a video, edit PROMO below.
-//  - type: "image"  → set `src` to an image URL
-//  - type: "video"  → set `src` to an .mp4 URL, `poster` to a fallback image
-//  Drop files in /public and reference like "/mi-video.mp4".
-// ============================================================
-const PROMO: {
-  type: "image" | "video";
-  src: string;
-  poster?: string;
-  alt: string;
-} = {
-  type: "image",
-  src: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=900&q=80",
-  poster: "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=900&q=80",
-  alt: "Ramo artesanal de peonías",
-};
+import { useEffect, useState } from "react";
+import { ImageIcon } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+type Media = { url: string; type: "image" | "video" };
 
 export function PromoMedia() {
+  const [media, setMedia] = useState<Media | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from("profiles")
+      .select("hero_media_url, hero_media_type")
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.hero_media_url) {
+          setMedia({
+            url: data.hero_media_url,
+            type: (data.hero_media_type as "image" | "video") || "image",
+          });
+        }
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="relative aspect-video overflow-hidden rounded-3xl bg-secondary animate-pulse shadow-elegant" />
+    );
+  }
+
+  if (!media) {
+    return (
+      <div className="relative aspect-video overflow-hidden rounded-3xl bg-secondary border-2 border-dashed border-border shadow-elegant flex flex-col items-center justify-center gap-3 text-muted-foreground">
+        <ImageIcon className="h-10 w-10 opacity-30" />
+        <p className="text-xs text-center opacity-50 px-4">
+          Agregá una imagen o video desde el panel admin → Info → Media del Hero
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="relative aspect-video overflow-hidden rounded-3xl shadow-elegant bg-secondary">
-      {PROMO.type === "video" ? (
+      {media.type === "video" ? (
         <video
           className="h-full w-full object-cover"
-          src={PROMO.src}
-          poster={PROMO.poster}
+          src={media.url}
           autoPlay
           muted
           loop
@@ -32,8 +55,8 @@ export function PromoMedia() {
         />
       ) : (
         <img
-          src={PROMO.src}
-          alt={PROMO.alt}
+          src={media.url}
+          alt="Hero"
           className="h-full w-full object-cover"
         />
       )}
