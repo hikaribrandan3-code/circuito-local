@@ -223,50 +223,6 @@ export default function Index() {
 
       {/* INSTAGRAM FEED */}
       <InstagramFeed />
-
-      {/* CONTACT CTA */}
-      <section className="mx-auto max-w-7xl px-4 lg:px-8 py-16 md:py-24">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 text-foreground border border-border/50 shadow-elegant p-10 md:p-16">
-          <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-amber-100/30 blur-3xl" />
-          <div className="absolute -left-10 -bottom-10 h-60 w-60 rounded-full bg-orange-100/20 blur-3xl" />
-          <div className="relative grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <span className="text-xs uppercase tracking-[0.2em] text-amber-700/70">¿Algo a medida?</span>
-              <h2 className="mt-3 font-display text-4xl md:text-5xl leading-tight text-foreground">
-                Armamos tu regalo <span className="serif-italic text-amber-700">a pedido.</span>
-              </h2>
-              <p className="mt-4 text-foreground/80 max-w-md leading-relaxed">
-                Contanos para quién es, qué le gusta y cuándo lo querés. Te respondemos por WhatsApp
-                con una propuesta hecha a tu medida.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 font-medium rounded-full shadow-md">
-                  <Link to="/contacto">Contactar <ArrowRight className="ml-1 h-4 w-4" /></Link>
-                </Button>
-                <Button asChild size="lg" className="border-2 border-foreground text-foreground hover:bg-foreground hover:text-background rounded-full transition-all">
-                  <a href={`https://wa.me/${STORE.whatsapp}`} target="_blank" rel="noreferrer">WhatsApp directo</a>
-                </Button>
-                <Button asChild size="lg" className="border-2 border-foreground text-foreground hover:bg-foreground hover:text-background rounded-full transition-all">
-                  <a href={STORE.instagram} target="_blank" rel="noreferrer">Instagram</a>
-                </Button>
-              </div>
-            </div>
-            <ul className="grid gap-3">
-              {[
-                "Curaduría personal según el destinatario",
-                "Tarjetas escritas a mano sin cargo",
-                "Envío en Córdoba y zona",
-                "Empaque elegante listo para regalar",
-              ].map((t) => (
-                <li key={t} className="flex items-center gap-3 rounded-xl bg-white/40 backdrop-blur-sm border border-amber-200/50 p-4 hover:bg-white/60 transition-colors">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-600 text-white text-xs font-semibold">✓</span>
-                  <span className="text-sm text-foreground">{t}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

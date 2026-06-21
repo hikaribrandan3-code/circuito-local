@@ -8,7 +8,7 @@ export function WhatsAppButton() {
       target="_blank"
       rel="noreferrer"
       aria-label="Consultar por WhatsApp"
-      className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-foreground text-background shadow-elegant hover:scale-105 active:scale-95 transition-transform"
+      className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-elegant hover:scale-105 active:scale-95 transition-transform"
     >
       {/* WhatsApp glyph as inline SVG so it always renders crisp */}
       <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden="true">
