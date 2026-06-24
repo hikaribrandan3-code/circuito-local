@@ -68,7 +68,7 @@ export default function Index() {
               que <span className="serif-italic">cuentan</span> historias.
             </h1>
             <p className="mt-5 max-w-md text-base md:text-lg text-foreground/80 leading-relaxed">
-              Armados a mano en 2 horas. Flores, libros, mate y piezas argentinas de diseño — desde $5.000 ARS.
+              Armados a mano en 2 horas. Flores, libros, mate y piezas argentinas de diseño — desde $24.999 ARS.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
