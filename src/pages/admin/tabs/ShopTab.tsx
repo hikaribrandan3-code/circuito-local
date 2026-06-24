@@ -73,7 +73,15 @@ export default function ShopTab({ userId }: { userId: string }) {
       const path = `${userId}/${Date.now()}.${ext}`;
       const { error: uploadErr } = await supabase.storage.from("gallery").upload(path, file);
       if (uploadErr) { toast.error(uploadErr.message); return; }
-      const { data } = supabase.storage.from("gallery").getPublicUrl(path);
+      const { data } = supabase.storage.from("gallery").getPublicUrl(path, {
+        transform: {
+          width: 1024,
+          height: 1024,
+          resize: 'contain',
+          quality: 95,
+          format: 'webp',
+        },
+      });
       const { error: insertErr } = await supabase.from("gallery_posts").insert({
         user_id: userId,
         image_url: data.publicUrl,
@@ -304,7 +312,15 @@ export default function ShopTab({ userId }: { userId: string }) {
                         const filename = `category-${editingCat.id || timestamp}-${file.name}`;
                         const { data, error } = await supabase.storage.from("item-images").upload(filename, file, { upsert: true });
                         if (error) throw error;
-                        const { data: publicUrl } = supabase.storage.from("item-images").getPublicUrl(filename);
+                        const { data: publicUrl } = supabase.storage.from("item-images").getPublicUrl(filename, {
+                          transform: {
+                            width: 400,
+                            height: 400,
+                            resize: 'cover',
+                            quality: 90,
+                            format: 'webp',
+                          },
+                        });
                         setEditingCat({ ...editingCat, image_url: publicUrl.publicUrl });
                         toast.success("Imagen subida");
                       } catch (err: any) {
@@ -429,7 +445,15 @@ export default function ShopTab({ userId }: { userId: string }) {
                             if (error) throw error;
                             const { data: publicUrl } = supabase.storage
                               .from("item-images")
-                              .getPublicUrl(filename);
+                              .getPublicUrl(filename, {
+                                transform: {
+                                  width: 800,
+                                  height: 800,
+                                  resize: 'contain',
+                                  quality: 95,
+                                  format: 'webp',
+                                },
+                              });
                             const n = [...itemImageUrls];
                             n[i] = publicUrl.publicUrl;
                             setItemImageUrls(n);
