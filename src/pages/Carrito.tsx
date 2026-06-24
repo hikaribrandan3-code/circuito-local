@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { Minus, Plus, ShoppingBag, Trash2, X, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,12 +10,53 @@ import { formatARS, STORE } from "@/lib/products";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+
 export default function Carrito() {
   const { items, setQty, remove, total, clear } = useCart();
   const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [sending, setSending] = useState(false);
+  const [deliveryMethod, setDeliveryMethod] = useState<"delivery" | "pickup">("pickup");
+  const [deliveryPrice, setDeliveryPrice] = useState(0);
+  const [customerLat, setCustomerLat] = useState<number | null>(null);
+  const [customerLon, setCustomerLon] = useState<number | null>(null);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+
+  // Load delivery settings
+  useEffect(() => {
+    async function loadDeliverySettings() {
+      const { data: profiles } = await supabase.from("profiles").select("id").limit(1);
+      const ownerId = profiles?.[0]?.id;
+      if (ownerId) {
+        const { data } = await supabase
+          .from("delivery_settings")
+          .select("delivery_price")
+          .eq("user_id", ownerId)
+          .single();
+        if (data) setDeliveryPrice(data.delivery_price);
+      }
+    }
+    loadDeliverySettings();
+  }, []);
+
+  const getLocation = async () => {
+    setLoadingLocation(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setCustomerLat(position.coords.latitude);
+        setCustomerLon(position.coords.longitude);
+        setLoadingLocation(false);
+        toast.success("Ubicación detectada");
+      }, () => {
+        setLoadingLocation(false);
+        toast.error("No pudimos acceder a tu ubicación");
+      });
+    }
+  };
+
+  const finalTotal = deliveryMethod === "delivery" ? total + deliveryPrice : total;
 
   if (items.length === 0) {
     return (
@@ -62,13 +103,20 @@ export default function Carrito() {
         customer_name: name,
         customer_phone: phone,
         items: orderItems,
-        total,
+        total: finalTotal,
+        delivery_method: deliveryMethod,
+        customer_latitude: customerLat,
+        customer_longitude: customerLon,
       });
     }
 
+    const deliveryText = deliveryMethod === "delivery"
+      ? `Envío a domicilio (+${formatARS(deliveryPrice)})`
+      : "Retiro en tienda (gratis)";
+
     const lines = items.map((i) => `• ${i.product.title} x${i.qty} — ${formatARS(i.product.price * i.qty)}`).join("\n");
     const text = encodeURIComponent(
-      `Hola ${STORE.name}, soy ${name} (${phone}).\n\nQuiero hacer este pedido:\n\n${lines}\n\nTotal: ${formatARS(total)}`,
+      `Hola ${STORE.name}, soy ${name} (${phone}).\n\nQuiero hacer este pedido:\n\n${lines}\n\n${deliveryText}\n\nTotal: ${formatARS(finalTotal)}`,
     );
     window.open(`https://wa.me/${STORE.whatsapp}?text=${text}`, "_blank");
     toast.success("¡Pedido enviado!", { description: "Te esperamos para coordinar el envío." });
@@ -100,6 +148,37 @@ export default function Carrito() {
                   <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{item.product.brand}</p>
                   <h3 className="font-display text-lg font-medium leading-tight line-clamp-1">{item.product.title}</h3>
                 </Link>
+
+                {/* Size selector if product has sizes */}
+                {item.product.has_sizes && (
+                  <div className="mt-2 flex gap-1 flex-wrap">
+                    {SIZES.map((size) => {
+                      const isAvailable = item.product.sizes?.[size] !== false;
+                      return (
+                        <button
+                          key={size}
+                          onClick={() => {
+                            // Store selected size in cart item
+                            if (item.product.selectedSize !== size) {
+                              item.product.selectedSize = size;
+                            }
+                          }}
+                          className={`text-[10px] px-2 py-1 rounded transition ${
+                            !isAvailable
+                              ? "bg-secondary text-muted-foreground line-through opacity-40"
+                              : item.product.selectedSize === size
+                              ? "bg-foreground text-background font-medium"
+                              : "border border-border text-muted-foreground hover:border-foreground"
+                          }`}
+                          disabled={!isAvailable}
+                        >
+                          {size}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
                 <div className="mt-auto flex items-center justify-between gap-3">
                   <div className="flex items-center gap-1 rounded-full bg-secondary px-1">
                     <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full" onClick={() => setQty(item.product.id, item.qty - 1)}>
@@ -129,13 +208,15 @@ export default function Carrito() {
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Envío</dt>
-              <dd className="text-muted-foreground">A coordinar</dd>
+              <dd className={deliveryMethod === "delivery" ? "font-medium" : "text-muted-foreground"}>
+                {deliveryMethod === "delivery" ? formatARS(deliveryPrice) : "Gratis"}
+              </dd>
             </div>
           </dl>
           <div className="my-4 h-px bg-border" />
           <div className="flex justify-between items-baseline">
             <span className="text-sm text-muted-foreground">Total</span>
-            <span className="font-display text-2xl font-semibold">{formatARS(total)}</span>
+            <span className="font-display text-2xl font-semibold">{formatARS(finalTotal)}</span>
           </div>
           <Button
             onClick={() => setShowModal(true)}
@@ -194,9 +275,55 @@ export default function Carrito() {
                     className="rounded-full"
                   />
                 </div>
+
+                {/* Delivery method selection */}
+                <div className="space-y-2">
+                  <Label>Cómo querés recibirlo</Label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setDeliveryMethod("pickup")}
+                      className={`flex-1 py-2 rounded-full text-sm font-medium transition ${
+                        deliveryMethod === "pickup"
+                          ? "bg-foreground text-background"
+                          : "border border-border text-muted-foreground hover:border-foreground"
+                      }`}
+                    >
+                      Retiro Gratis
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeliveryMethod("delivery")}
+                      className={`flex-1 py-2 rounded-full text-sm font-medium transition ${
+                        deliveryMethod === "delivery"
+                          ? "bg-foreground text-background"
+                          : "border border-border text-muted-foreground hover:border-foreground"
+                      }`}
+                    >
+                      Envío ({formatARS(deliveryPrice)})
+                    </button>
+                  </div>
+                </div>
+
+                {/* Location detection for delivery */}
+                {deliveryMethod === "delivery" && (
+                  <div className="space-y-2">
+                    <Button
+                      type="button"
+                      onClick={getLocation}
+                      disabled={loadingLocation}
+                      variant="outline"
+                      className="w-full rounded-full"
+                    >
+                      <MapPin className="h-4 w-4 mr-2" />
+                      {loadingLocation ? "Detectando..." : customerLat ? "✓ Ubicación detectada" : "Detectar mi ubicación"}
+                    </Button>
+                  </div>
+                )}
+
                 <Button
                   type="submit"
-                  disabled={sending}
+                  disabled={sending || (deliveryMethod === "delivery" && !customerLat)}
                   size="lg"
                   className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-full font-medium"
                 >
