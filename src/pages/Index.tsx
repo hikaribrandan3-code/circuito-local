@@ -155,7 +155,7 @@ export default function Index() {
                   </div>
                   <div className="absolute -bottom-4 -left-4 hidden md:flex flex-col items-center justify-center rounded-2xl bg-background border border-border shadow-elegant px-4 py-3">
                     <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Desde</span>
-                    <span className="font-display text-xl font-bold">$5.000</span>
+                    <span className="font-display text-xl font-bold">$24.999</span>
                     <span className="text-[10px] text-muted-foreground">ARS</span>
                   </div>
                 </>
