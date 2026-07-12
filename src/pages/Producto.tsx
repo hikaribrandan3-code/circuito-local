@@ -86,7 +86,12 @@ export default function Producto() {
           .limit(4);
 
         if (relatedData) {
-          const { data: allImagesData } = await supabase.from("item_images").select("*").order("display_order");
+          const relatedIds = relatedData.map((rel: DbItem) => rel.id);
+          const { data: allImagesData } = await supabase
+            .from("item_images")
+            .select("*")
+            .in("item_id", relatedIds)
+            .order("display_order");
           const imageMap: Record<string, DbItemImage[]> = {};
           (allImagesData || []).forEach((img: DbItemImage) => {
             if (!imageMap[img.item_id]) imageMap[img.item_id] = [];

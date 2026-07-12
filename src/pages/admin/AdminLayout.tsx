@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Info, ShoppingBag, ClipboardList, BarChart2, LogOut, Menu, X } from "lucide-react";
+import { Info, ShoppingBag, ClipboardList, BarChart2, Users, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import InfoTab from "./tabs/InfoTab";
 import ShopTab from "./tabs/ShopTab";
 import OrdersTab from "./tabs/OrdersTab";
 import AnalyticsTab from "./tabs/AnalyticsTab";
+import CustomersTab from "./tabs/CustomersTab";
 
-type Tab = "info" | "shop" | "orders" | "analytics";
+type Tab = "info" | "shop" | "orders" | "customers" | "analytics";
 
 const TABS = [
   { id: "info" as Tab, label: "Info", icon: Info },
   { id: "shop" as Tab, label: "Shop", icon: ShoppingBag },
   { id: "orders" as Tab, label: "Pedidos", icon: ClipboardList },
+  { id: "customers" as Tab, label: "Clientes", icon: Users },
   { id: "analytics" as Tab, label: "Stats", icon: BarChart2 },
 ];
 
@@ -136,6 +138,7 @@ export default function AdminLayout({ userId, userEmail }: { userId: string; use
           {tab === "info" && <InfoTab userId={userId} />}
           {tab === "shop" && <ShopTab userId={userId} />}
           {tab === "orders" && <OrdersTab userId={userId} />}
+          {tab === "customers" && <CustomersTab userId={userId} />}
           {tab === "analytics" && <AnalyticsTab userId={userId} />}
         </div>
       </main>

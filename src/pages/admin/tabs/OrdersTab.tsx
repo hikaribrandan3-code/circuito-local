@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { MessageCircle, ChevronDown, ChevronUp, User, Phone } from "lucide-react";
+import { toast } from "sonner";
+import { MessageCircle, ChevronDown, ChevronUp, User, Phone, Check, X as XIcon } from "lucide-react";
 
 type OrderItem = { id: string; name: string; qty: number; price: number };
 
@@ -13,14 +14,22 @@ type Order = {
   items: OrderItem[];
   total: number;
   created_at: string;
+  status: "pending" | "fulfilled" | "cancelled";
+};
+
+const STATUS_LABEL: Record<Order["status"], string> = {
+  pending: "Pendiente",
+  fulfilled: "Vendido",
+  cancelled: "Cancelado",
 };
 
 export default function OrdersTab({ userId }: { userId: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [updating, setUpdating] = useState<string | null>(null);
 
-  useEffect(() => {
+  function loadOrders() {
     supabase
       .from("orders")
       .select("*")
@@ -30,7 +39,51 @@ export default function OrdersTab({ userId }: { userId: string }) {
         setOrders((data ?? []) as Order[]);
         setLoading(false);
       });
+  }
+
+  useEffect(() => {
+    loadOrders();
   }, [userId]);
+
+  async function markFulfilled(order: Order) {
+    if (order.status !== "pending") return;
+    setUpdating(order.id);
+    try {
+      // Decrement stock for every line item, floored at 0. Manual and
+      // idempotent by design — WhatsApp checkout isn't a real payment
+      // confirmation, so stock only moves when the owner confirms a sale.
+      for (const line of order.items) {
+        const { data: current } = await supabase
+          .from("items")
+          .select("stock_quantity")
+          .eq("id", line.id)
+          .single();
+        if (!current) continue;
+        const nextQty = Math.max(0, (current.stock_quantity ?? 0) - line.qty);
+        await supabase
+          .from("items")
+          .update({ stock_quantity: nextQty, stock_status: nextQty > 0 ? "in_stock" : "out_of_stock" })
+          .eq("id", line.id);
+      }
+      const { error } = await supabase.from("orders").update({ status: "fulfilled" }).eq("id", order.id);
+      if (error) throw error;
+      toast.success("Pedido marcado como vendido, stock actualizado");
+      loadOrders();
+    } catch (err: any) {
+      toast.error(`Error: ${err.message}`);
+    } finally {
+      setUpdating(null);
+    }
+  }
+
+  async function markCancelled(order: Order) {
+    if (order.status !== "pending") return;
+    setUpdating(order.id);
+    const { error } = await supabase.from("orders").update({ status: "cancelled" }).eq("id", order.id);
+    setUpdating(null);
+    if (error) return toast.error(error.message);
+    loadOrders();
+  }
 
   if (loading) {
     return <div className="py-20 text-center text-sm text-muted-foreground">Cargando pedidos...</div>;
@@ -73,7 +126,16 @@ export default function OrdersTab({ userId }: { userId: string }) {
                         {format(new Date(order.created_at), "d MMM · HH:mm", { locale: es })}
                       </p>
                     </div>
-                    <p className="text-xs text-muted-foreground">{order.items.length} {order.items.length === 1 ? "producto" : "productos"}</p>
+                    <div className="flex items-center justify-between gap-2 mt-0.5">
+                      <p className="text-xs text-muted-foreground">{order.items.length} {order.items.length === 1 ? "producto" : "productos"}</p>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full border shrink-0 ${
+                        order.status === "fulfilled" ? "border-success/40 text-success bg-success/5"
+                        : order.status === "cancelled" ? "border-destructive/40 text-destructive bg-destructive/5"
+                        : "border-warning/40 text-warning bg-warning/5"
+                      }`}>
+                        {STATUS_LABEL[order.status]}
+                      </span>
+                    </div>
                   </div>
                   {isOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
                 </button>
@@ -100,6 +162,24 @@ export default function OrdersTab({ userId }: { userId: string }) {
                     >
                       <Phone className="h-4 w-4" /> Responder por WhatsApp
                     </a>
+                    {order.status === "pending" && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => markFulfilled(order)}
+                          disabled={updating === order.id}
+                          className="flex-1 flex items-center justify-center gap-1.5 rounded-full bg-foreground text-background py-2 text-sm font-medium disabled:opacity-50 transition"
+                        >
+                          <Check className="h-4 w-4" /> Marcar vendido
+                        </button>
+                        <button
+                          onClick={() => markCancelled(order)}
+                          disabled={updating === order.id}
+                          className="flex-1 flex items-center justify-center gap-1.5 rounded-full border border-border text-muted-foreground py-2 text-sm font-medium disabled:opacity-50 hover:text-destructive hover:border-destructive/40 transition"
+                        >
+                          <XIcon className="h-4 w-4" /> Cancelar
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

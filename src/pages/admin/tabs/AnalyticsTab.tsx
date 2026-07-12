@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { subDays, isAfter } from "date-fns";
-import { ShoppingBag, TrendingUp, DollarSign } from "lucide-react";
+import { ShoppingBag, TrendingUp, DollarSign, AlertTriangle } from "lucide-react";
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 type OrderItem = { id: string; name: string; qty: number; price: number };
 type Order = { id: string; items: OrderItem[]; total: number; created_at: string };
+type LowStockItem = { id: string; name: string; stock_quantity: number };
 
 type Period = 7 | 30;
 
 export default function AnalyticsTab({ userId }: { userId: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [lowStock, setLowStock] = useState<LowStockItem[]>([]);
   const [period, setPeriod] = useState<Period>(7);
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +26,13 @@ export default function AnalyticsTab({ userId }: { userId: string }) {
         setOrders((data ?? []) as Order[]);
         setLoading(false);
       });
+    supabase
+      .from("items")
+      .select("id, name, stock_quantity")
+      .eq("user_id", userId)
+      .lte("stock_quantity", 3)
+      .order("stock_quantity", { ascending: true })
+      .then(({ data }) => setLowStock((data ?? []) as LowStockItem[]));
   }, [userId]);
 
   const cutoff = subDays(new Date(), period);
@@ -46,6 +56,17 @@ export default function AnalyticsTab({ userId }: { userId: string }) {
     .slice(0, 5);
 
   const avgOrder = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
+
+  // Daily revenue for the chart, oldest to newest.
+  const dailyRevenue: { day: string; revenue: number }[] = [];
+  for (let i = period - 1; i >= 0; i--) {
+    const day = subDays(new Date(), i);
+    const dayKey = day.toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" });
+    const dayTotal = filtered
+      .filter((o) => new Date(o.created_at).toDateString() === day.toDateString())
+      .reduce((sum, o) => sum + o.total, 0);
+    dailyRevenue.push({ day: dayKey, revenue: dayTotal });
+  }
 
   if (loading) {
     return <div className="py-20 text-center text-sm text-muted-foreground">Cargando estadísticas...</div>;
@@ -98,6 +119,47 @@ export default function AnalyticsTab({ userId }: { userId: string }) {
           <p className="text-xs text-muted-foreground mt-1">por pedido</p>
         </div>
       </div>
+
+      {/* Revenue over time */}
+      <div className="rounded-2xl bg-card border border-border p-5 shadow-soft">
+        <h2 className="font-display text-xl mb-4">Revenue por día</h2>
+        {totalRevenue === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">Sin datos para este período.</p>
+        ) : (
+          <div className="h-40 -ml-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dailyRevenue}>
+                <XAxis dataKey="day" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} interval={period === 30 ? 4 : 0} />
+                <Tooltip
+                  formatter={(value: number) => [`$${value.toLocaleString("es-AR")}`, "Revenue"]}
+                  contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12, fontSize: 12 }}
+                />
+                <Bar dataKey="revenue" fill="var(--foreground)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+      {/* Low stock alert */}
+      {lowStock.length > 0 && (
+        <div className="rounded-2xl bg-card border border-warning/30 p-5 shadow-soft">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            <h2 className="font-display text-xl">Poco stock</h2>
+          </div>
+          <div className="space-y-2">
+            {lowStock.map((item) => (
+              <div key={item.id} className="flex items-center justify-between text-sm">
+                <span className="truncate">{item.name}</span>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full shrink-0 ${item.stock_quantity === 0 ? "text-destructive bg-destructive/10" : "text-warning bg-warning/10"}`}>
+                  {item.stock_quantity === 0 ? "Sin stock" : `${item.stock_quantity} unidades`}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Top items */}
       <div className="rounded-2xl bg-card border border-border p-5 shadow-soft">

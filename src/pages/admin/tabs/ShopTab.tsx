@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, ChevronDown, ChevronUp, Image as ImageIcon, Upload, Instagram } from "lucide-react";
+import { Plus, Pencil, Trash2, X, ChevronDown, ChevronUp, Image as ImageIcon, Upload, Instagram } from "lucide-react";
+import { compressImage } from "@/lib/imageCompress";
 
 type Category = { id: string; name: string; description: string | null; display_order: number; image_url?: string | null };
-type Item = { id: string; name: string; description: string | null; price: number; stock_status: string; category_id: string };
+type Item = { id: string; name: string; description: string | null; price: number; stock_status: string; stock_quantity: number; category_id: string };
 type ItemImage = { id: string; item_id: string; image_url: string; display_order: number };
 
 type GalleryPost = { id: string; image_url: string; caption: string | null; display_order: number };
@@ -29,7 +30,7 @@ export default function ShopTab({ userId }: { userId: string }) {
 
   // Item form
   const [editingItem, setEditingItem] = useState<Partial<Item> | null>(null);
-  const [itemImageUrls, setItemImageUrls] = useState<string[]>(["", "", ""]);
+  const [itemImageUrls, setItemImageUrls] = useState<string[]>(["", "", "", "", "", ""]);
 
   useEffect(() => { loadCategories(); }, [userId]);
   useEffect(() => { loadItems(); }, [userId]);
@@ -69,9 +70,10 @@ export default function ShopTab({ userId }: { userId: string }) {
     if (!file) return;
     setGalleryUploading(true);
     try {
-      const ext = file.name.split(".").pop();
+      const compressed = await compressImage(file);
+      const ext = compressed.name.split(".").pop();
       const path = `${userId}/${Date.now()}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("gallery").upload(path, file);
+      const { error: uploadErr } = await supabase.storage.from("gallery").upload(path, compressed);
       if (uploadErr) { toast.error(uploadErr.message); return; }
       const { data } = supabase.storage.from("gallery").getPublicUrl(path, {
         transform: {
@@ -135,15 +137,15 @@ export default function ShopTab({ userId }: { userId: string }) {
 
   // --- ITEMS ---
   function openNewItem() {
-    setEditingItem({ name: "", description: "", price: 0, stock_status: "in_stock", category_id: categories[0]?.id ?? "" });
-    setItemImageUrls(["", "", ""]);
+    setEditingItem({ name: "", description: "", price: 0, stock_status: "in_stock", stock_quantity: 0, category_id: categories[0]?.id ?? "" });
+    setItemImageUrls(["", "", "", "", "", ""]);
     setExpandedItem(null);
   }
 
   function openEditItem(item: Item) {
     setEditingItem(item);
     const imgs = images[item.id] ?? [];
-    const urls = ["", "", ""].map((_, i) => imgs[i]?.image_url ?? "");
+    const urls = ["", "", "", "", "", ""].map((_, i) => imgs[i]?.image_url ?? "");
     setItemImageUrls(urls);
     setExpandedItem(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -154,13 +156,15 @@ export default function ShopTab({ userId }: { userId: string }) {
     if (!editingItem) return;
     if (!editingItem.category_id) return toast.error("Seleccioná una categoría");
 
+    const stockQuantity = Math.max(0, Number(editingItem.stock_quantity) || 0);
     const payload = {
       user_id: userId,
       category_id: editingItem.category_id,
       name: editingItem.name ?? "",
       description: editingItem.description ?? null,
       price: Number(editingItem.price) || 0,
-      stock_status: editingItem.stock_status ?? "in_stock",
+      stock_quantity: stockQuantity,
+      stock_status: stockQuantity > 0 ? "in_stock" : "out_of_stock",
     };
 
     let itemId = editingItem.id;
@@ -193,13 +197,6 @@ export default function ShopTab({ userId }: { userId: string }) {
     if (error) return toast.error(error.message);
     toast.success("Eliminado");
     loadItems();
-  }
-
-  async function toggleStock(item: Item) {
-    const next = item.stock_status === "in_stock" ? "out_of_stock" : "in_stock";
-    const { error } = await supabase.from("items").update({ stock_status: next }).eq("id", item.id);
-    if (error) return toast.error(error.message);
-    setItems((prev) => prev.map((i) => i.id === item.id ? { ...i, stock_status: next } : i));
   }
 
   const filteredItems = selectedCat === "all" ? items : items.filter((i) => i.category_id === selectedCat);
@@ -308,9 +305,10 @@ export default function ShopTab({ userId }: { userId: string }) {
                       const file = e.target.files?.[0];
                       if (!file) return;
                       try {
+                        const compressed = await compressImage(file);
                         const timestamp = Date.now();
-                        const filename = `category-${editingCat.id || timestamp}-${file.name}`;
-                        const { data, error } = await supabase.storage.from("item-images").upload(filename, file, { upsert: true });
+                        const filename = `category-${editingCat.id || timestamp}-${compressed.name}`;
+                        const { data, error } = await supabase.storage.from("item-images").upload(filename, compressed, { upsert: true });
                         if (error) throw error;
                         const { data: publicUrl } = supabase.storage.from("item-images").getPublicUrl(filename, {
                           transform: {
@@ -408,15 +406,29 @@ export default function ShopTab({ userId }: { userId: string }) {
                   </select>
                 </div>
                 <div className="col-span-2 space-y-2">
+                  <Label>Stock disponible</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={editingItem.stock_quantity === 0 ? "" : (editingItem.stock_quantity ?? "")}
+                    onChange={(e) => setEditingItem({ ...editingItem, stock_quantity: Math.max(0, parseInt(e.target.value) || 0) })}
+                    onFocus={(e) => e.target.select()}
+                    placeholder="0"
+                    className="rounded-full"
+                  />
+                  <p className="text-[10px] text-muted-foreground">El stock baja automáticamente cuando marcás un pedido como vendido en la pestaña Pedidos.</p>
+                </div>
+                <div className="col-span-2 space-y-2">
                   <Label>Descripción</Label>
                   <Textarea rows={3} value={editingItem.description ?? ""} onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })} className="rounded-2xl" />
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Label>Fotos (hasta 3 archivos)</Label>
+                <Label>Fotos (hasta 6 archivos)</Label>
                 <div className="grid grid-cols-3 gap-2">
-                  {[0, 1, 2].map((i) => (
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
                     <label key={i} className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-border p-3 cursor-pointer hover:border-foreground/50 transition-colors group">
                       {itemImageUrls[i] ? (
                         <>
@@ -437,11 +449,12 @@ export default function ShopTab({ userId }: { userId: string }) {
                           const file = e.target.files?.[0];
                           if (!file) return;
                           try {
+                            const compressed = await compressImage(file);
                             const timestamp = Date.now();
-                            const filename = `item-${editingItem.id || timestamp}-${i}-${file.name}`;
+                            const filename = `item-${editingItem.id || timestamp}-${i}-${compressed.name}`;
                             const { data, error } = await supabase.storage
                               .from("item-images")
-                              .upload(filename, file, { upsert: true });
+                              .upload(filename, compressed, { upsert: true });
                             if (error) throw error;
                             const { data: publicUrl } = supabase.storage
                               .from("item-images")
@@ -514,12 +527,14 @@ export default function ShopTab({ userId }: { userId: string }) {
             {filteredItems.map((item) => {
               const itemImgs = images[item.id] ?? [];
               const isExpanded = expandedItem === item.id;
-              const inStock = item.stock_status === "in_stock";
+              const qty = item.stock_quantity ?? 0;
+              const inStock = qty > 0;
+              const lowStock = qty > 0 && qty <= 3;
               return (
                 <div key={item.id} className={`rounded-2xl bg-card border shadow-soft transition-all ${inStock ? "border-border" : "border-border/50 opacity-60"}`}>
                   <div className="flex items-center gap-3 p-3">
                     {itemImgs[0] ? (
-                      <img src={itemImgs[0].image_url} alt={item.name} className="h-14 w-14 rounded-xl object-cover shrink-0 border border-border" />
+                      <img src={itemImgs[0].image_url} alt={item.name} loading="lazy" width={56} height={56} className="h-14 w-14 rounded-xl object-cover shrink-0 border border-border" />
                     ) : (
                       <div className="h-14 w-14 rounded-xl bg-secondary shrink-0 flex items-center justify-center text-xs text-muted-foreground">Sin foto</div>
                     )}
@@ -536,10 +551,13 @@ export default function ShopTab({ userId }: { userId: string }) {
                           {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                         </Button>
                       </div>
-                      <button onClick={() => toggleStock(item)} className={`flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full border transition-colors ${inStock ? "border-success/40 text-success bg-success/5" : "border-muted text-muted-foreground bg-muted/30"}`}>
-                        {inStock ? <ToggleRight className="h-3 w-3" /> : <ToggleLeft className="h-3 w-3" />}
-                        {inStock ? "En stock" : "Sin stock"}
-                      </button>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                        !inStock ? "border-muted text-muted-foreground bg-muted/30"
+                        : lowStock ? "border-warning/40 text-warning bg-warning/5"
+                        : "border-success/40 text-success bg-success/5"
+                      }`}>
+                        {!inStock ? "Sin stock" : lowStock ? `Poco stock (${qty})` : `En stock (${qty})`}
+                      </span>
                     </div>
                   </div>
 

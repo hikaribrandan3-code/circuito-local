@@ -98,7 +98,7 @@ export default function Carrito() {
     const ownerId = profiles?.[0]?.id;
 
     if (ownerId) {
-      await supabase.from("orders").insert({
+      const { error: orderError } = await supabase.from("orders").insert({
         user_id: ownerId,
         customer_name: name,
         customer_phone: phone,
@@ -108,6 +108,18 @@ export default function Carrito() {
         customer_latitude: customerLat,
         customer_longitude: customerLon,
       });
+      if (orderError) {
+        console.error("Failed to save order:", orderError);
+        toast.error("No pudimos guardar tu pedido, pero podés seguir por WhatsApp");
+      }
+
+      const { error: customerError } = await supabase
+        .from("shop_customers")
+        .upsert(
+          { user_id: ownerId, phone, name, updated_at: new Date().toISOString() },
+          { onConflict: "user_id,phone" },
+        );
+      if (customerError) console.error("Failed to upsert customer:", customerError);
     }
 
     const deliveryText = deliveryMethod === "delivery"
@@ -141,7 +153,7 @@ export default function Carrito() {
               className="flex gap-4 rounded-2xl bg-card border border-border p-4"
             >
               <Link to={`/producto/${item.product.id}`} className="shrink-0">
-                <img src={item.product.image} alt={item.product.title} className="h-24 w-24 rounded-xl object-cover" />
+                <img src={item.product.image} alt={item.product.title} loading="lazy" width={96} height={96} className="h-24 w-24 rounded-xl object-cover" />
               </Link>
               <div className="flex flex-1 flex-col">
                 <Link to={`/producto/${item.product.id}`} className="hover:underline">
