@@ -7,7 +7,10 @@ export default function NotFound() {
       <p className="font-display text-8xl text-muted-foreground">404</p>
       <h1 className="mt-4 font-display text-3xl">Página no encontrada</h1>
       <p className="mt-2 text-muted-foreground">El enlace que buscás no existe o fue movido.</p>
-      <Button asChild className="mt-8 bg-foreground text-background hover:bg-foreground/90 rounded-full">
+      <Button
+        asChild
+        className="mt-8 bg-foreground text-background hover:bg-foreground/90 rounded-full"
+      >
         <Link to="/">Volver al inicio</Link>
       </Button>
     </div>
