@@ -12,6 +12,7 @@ export function useCurrentStore() {
   useEffect(() => {
     let active = true;
     setLoading(true);
+    setError("");
     getStore(storeSlug)
       .then((value) => {
         if (active) setStore(value);
@@ -29,6 +30,26 @@ export function StoreShell({ store, children }: { store: Store; children: ReactN
   const { count } = useCart();
   const base = `/${store.slug}`;
   const logo = mediaUrl(store.settings.logo_path, 160);
+  useEffect(() => {
+    document.title = `${store.name} | Tienda online`;
+    const description = String(
+      store.config.description ?? `Comprá en ${store.name} y coordiná por WhatsApp.`,
+    );
+    let meta = document.querySelector('meta[name="description"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.setAttribute("name", "description");
+      document.head.appendChild(meta);
+    }
+    meta.setAttribute("content", description);
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", `${window.location.origin}${window.location.pathname}`);
+  }, [store]);
   return (
     <div className="flex min-h-screen flex-col">
       <div className="bg-foreground text-background text-center py-2 px-4 text-xs tracking-wide font-medium">
@@ -102,5 +123,20 @@ export function StoreShell({ store, children }: { store: Store; children: ReactN
 export function StoreLoading({ message = "Cargando tienda…" }: { message?: string }) {
   return (
     <div className="min-h-[60vh] grid place-items-center text-muted-foreground">{message}</div>
+  );
+}
+
+export function StoreUnavailable({
+  message = "Esta tienda no está disponible.",
+}: {
+  message?: string;
+}) {
+  return (
+    <div className="grid min-h-[60vh] place-items-center px-4 text-center">
+      <div>
+        <h1 className="font-display text-3xl">Tienda no disponible</h1>
+        <p className="mt-3 text-muted-foreground">{message}</p>
+      </div>
+    </div>
   );
 }

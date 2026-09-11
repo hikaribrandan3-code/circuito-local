@@ -2,7 +2,12 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { getCatalog, mediaUrl, productImage, type Category, type Product } from "@/lib/commerce";
-import { StoreLoading, StoreShell, useCurrentStore } from "@/components/StoreShell";
+import {
+  StoreLoading,
+  StoreShell,
+  StoreUnavailable,
+  useCurrentStore,
+} from "@/components/StoreShell";
 
 export default function Index() {
   const { store, loading, error } = useCurrentStore();
@@ -16,7 +21,7 @@ export default function Index() {
         .catch(() => setCatalog({ categories: [], products: [] }));
   }, [store]);
   if (loading) return <StoreLoading />;
-  if (!store || error) return <StoreLoading message={error || "Esta tienda no está disponible."} />;
+  if (!store || error) return <StoreUnavailable message={error || undefined} />;
   const base = `/${store.slug}`;
   const rootCategories = catalog?.categories.filter((category) => !category.parent_id) ?? [];
   return (

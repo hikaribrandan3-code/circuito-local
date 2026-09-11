@@ -1,10 +1,15 @@
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { getCatalog, productImage, type Category, type Product } from "@/lib/commerce";
-import { StoreLoading, StoreShell, useCurrentStore } from "@/components/StoreShell";
+import {
+  StoreLoading,
+  StoreShell,
+  StoreUnavailable,
+  useCurrentStore,
+} from "@/components/StoreShell";
 
 export default function Catalogo() {
-  const { store, loading } = useCurrentStore();
+  const { store, loading, error } = useCurrentStore();
   const { categorySlug } = useParams();
   const [searchParams] = useSearchParams();
   const [catalog, setCatalog] = useState<{ categories: Category[]; products: Product[] } | null>(
@@ -15,27 +20,39 @@ export default function Catalogo() {
     if (store) getCatalog(store).then(setCatalog);
   }, [store]);
   const category = catalog?.categories.find((item) => item.slug === categorySlug);
-  const categoryIds = new Set(
-    category
-      ? [
-          category.id,
-          ...catalog!.categories
-            .filter((item) => item.parent_id === category.id)
-            .map((item) => item.id),
-        ]
-      : [],
-  );
-  const products = useMemo(
-    () =>
-      (catalog?.products ?? []).filter(
-        (product) =>
-          (!category || categoryIds.has(product.category_id ?? "")) &&
-          product.name.toLowerCase().includes(query.toLowerCase()),
-      ),
-    [catalog, category, query],
-  );
-  if (loading || !store || !catalog) return <StoreLoading message="Cargando catálogo…" />;
+  const products = useMemo(() => {
+    const categoryIds = new Set(
+      category
+        ? [
+            category.id,
+            ...catalog!.categories
+              .filter((item) => item.parent_id === category.id)
+              .map((item) => item.id),
+          ]
+        : [],
+    );
+    return (catalog?.products ?? []).filter(
+      (product) =>
+        (!category || categoryIds.has(product.category_id ?? "")) &&
+        product.name.toLowerCase().includes(query.toLowerCase()),
+    );
+  }, [catalog, category, query]);
+  if (loading) return <StoreLoading message="Cargando catálogo…" />;
+  if (!store) return <StoreUnavailable message={error || undefined} />;
+  if (!catalog) return <StoreLoading message="Cargando catálogo…" />;
   const base = `/${store.slug}`;
+  if (categorySlug && !category) {
+    return (
+      <StoreShell store={store}>
+        <div className="mx-auto max-w-xl px-4 py-24 text-center">
+          <h1 className="font-display text-3xl">Categoría no encontrada</h1>
+          <Link className="mt-5 inline-block underline" to={`${base}/catalogo`}>
+            Ver todo el catálogo
+          </Link>
+        </div>
+      </StoreShell>
+    );
+  }
   return (
     <StoreShell store={store}>
       <div className="mx-auto max-w-7xl px-4 lg:px-8 py-10">

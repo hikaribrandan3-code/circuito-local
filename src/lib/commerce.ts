@@ -143,7 +143,7 @@ export async function getStore(slug: string): Promise<Store | null> {
   const { data, error } = await supabase
     .from("stores")
     .select(
-      "id,slug,name,template_key,is_published,store_settings(whatsapp_number,instagram_url,city,address,logo_path,hero_path,hero_media_type,pickup_enabled,delivery_enabled,delivery_price,delivery_notes),storefront_configs(config)",
+      "id,slug,name,template_key,is_published,store_settings(whatsapp_number,instagram_url,city,logo_path,hero_path,hero_media_type,pickup_enabled,delivery_enabled,delivery_price),storefront_configs(config)",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -164,7 +164,7 @@ export async function getStore(slug: string): Promise<Store | null> {
 }
 
 const cardSelect =
-  "id,store_id,category_id,slug,name,description,price,currency,status,availability,track_inventory,inventory_quantity,categories(id,name,slug),product_images(id,storage_path,alt_text,display_order)";
+  "id,store_id,category_id,slug,name,description,price,currency,status,availability,categories(id,name,slug),product_images(id,storage_path,alt_text,display_order)";
 const detailSelect = `${cardSelect},product_options(id,name,display_order,product_option_values(id,value,display_order)),product_variants(id,choice_signature,sku,price,availability,inventory_quantity,variant_option_values(option_value_id))`;
 
 export async function getCatalog(

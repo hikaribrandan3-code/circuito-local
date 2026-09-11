@@ -10,16 +10,27 @@ import {
   type Variant,
 } from "@/lib/commerce";
 import { useCart } from "@/lib/cart";
-import { StoreLoading, StoreShell, useCurrentStore } from "@/components/StoreShell";
+import {
+  StoreLoading,
+  StoreShell,
+  StoreUnavailable,
+  useCurrentStore,
+} from "@/components/StoreShell";
 
 export default function Producto() {
-  const { store, loading } = useCurrentStore();
+  const { store, loading, error } = useCurrentStore();
   const { productSlug } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
+  const [resolved, setResolved] = useState(false);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
   const { add } = useCart();
   useEffect(() => {
-    if (store && productSlug) getProduct(store, productSlug).then(setProduct);
+    if (!store || !productSlug) return;
+    setResolved(false);
+    setProduct(null);
+    getProduct(store, productSlug)
+      .then(setProduct)
+      .finally(() => setResolved(true));
   }, [store, productSlug]);
   const selectedVariant = useMemo<Variant | undefined>(
     () =>
@@ -30,7 +41,21 @@ export default function Producto() {
       ),
     [product, selectedValues],
   );
-  if (loading || !store || !product) return <StoreLoading message="Cargando producto…" />;
+  if (loading) return <StoreLoading message="Cargando producto…" />;
+  if (!store) return <StoreUnavailable message={error || undefined} />;
+  if (!resolved) return <StoreLoading message="Cargando producto…" />;
+  if (!product) {
+    return (
+      <StoreShell store={store}>
+        <div className="mx-auto max-w-xl px-4 py-24 text-center">
+          <h1 className="font-display text-3xl">Producto no encontrado</h1>
+          <Link className="mt-5 inline-block underline" to={`/${store.slug}/catalogo`}>
+            Volver al catálogo
+          </Link>
+        </div>
+      </StoreShell>
+    );
+  }
   const needsVariant = product.options.length > 0;
   const price = selectedVariant?.price ?? product.price;
   const choose = (optionId: string, valueId: string) =>
@@ -43,6 +68,20 @@ export default function Producto() {
       ),
       valueId,
     ]);
+  const isSelectable = (optionId: string, valueId: string) => {
+    const selectedElsewhere = selectedValues.filter(
+      (selectedId) =>
+        !product.options
+          .find((option) => option.id === optionId)
+          ?.values.some((value) => value.id === selectedId),
+    );
+    return product.variants.some(
+      (variant) =>
+        variant.availability === "available" &&
+        variant.option_value_ids.includes(valueId) &&
+        selectedElsewhere.every((selectedId) => variant.option_value_ids.includes(selectedId)),
+    );
+  };
   const canAdd =
     product.availability === "available" &&
     (!needsVariant || Boolean(selectedVariant && selectedVariant.availability === "available"));
@@ -93,11 +132,7 @@ export default function Producto() {
                   <div className="flex flex-wrap gap-2">
                     {option.values.map((value) => {
                       const chosen = selectedValues.includes(value.id);
-                      const possible = product.variants.some(
-                        (variant) =>
-                          variant.availability === "available" &&
-                          variant.option_value_ids.includes(value.id),
-                      );
+                      const possible = isSelectable(option.id, value.id);
                       return (
                         <button
                           type="button"

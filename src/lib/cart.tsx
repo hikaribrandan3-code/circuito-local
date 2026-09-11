@@ -32,13 +32,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
       items,
       add(product, variant = null) {
         const key = keyFor(product, variant);
-        setItems((previous) =>
-          previous.some((item) => item.key === key)
+        setItems((previous) => {
+          // A cart is deliberately scoped to one storefront. Mixing tenants is
+          // confusing and can never be checked out as one local order.
+          if (previous[0] && previous[0].product.store_id !== product.store_id) {
+            return [{ key, product, variant, quantity: 1 }];
+          }
+          return previous.some((item) => item.key === key)
             ? previous.map((item) =>
                 item.key === key ? { ...item, quantity: item.quantity + 1 } : item,
               )
-            : [...previous, { key, product, variant, quantity: 1 }],
-        );
+            : [...previous, { key, product, variant, quantity: 1 }];
+        });
       },
       remove(key) {
         setItems((previous) => previous.filter((item) => item.key !== key));

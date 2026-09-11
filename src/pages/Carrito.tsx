@@ -1,15 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link } from "react-router-dom";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cartStore, useCart } from "@/lib/cart";
 import { formatMoney, variantLabel } from "@/lib/commerce";
-import { StoreLoading, StoreShell, useCurrentStore } from "@/components/StoreShell";
+import {
+  StoreLoading,
+  StoreShell,
+  StoreUnavailable,
+  useCurrentStore,
+} from "@/components/StoreShell";
 
 export default function Carrito() {
-  const { store, loading } = useCurrentStore();
+  const { store, loading, error } = useCurrentStore();
   const { items, subtotal, setQuantity, remove, clear } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -17,7 +22,9 @@ export default function Carrito() {
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
   const [sending, setSending] = useState(false);
-  if (loading || !store) return <StoreLoading />;
+  const checkoutToken = useRef(crypto.randomUUID());
+  if (loading) return <StoreLoading />;
+  if (!store) return <StoreUnavailable message={error || undefined} />;
   const currentStore = store;
   const invalidCart = Boolean(items.length && cartStore(items) !== currentStore.id);
   const delivery = method === "delivery" ? currentStore.settings.delivery_price : 0;
@@ -38,6 +45,7 @@ export default function Carrito() {
         p_fulfillment_method: method,
         p_delivery_address: address || null,
         p_customer_note: note || null,
+        p_checkout_token: checkoutToken.current,
       });
       if (error) throw error;
       const order = Array.isArray(data) ? data[0] : data;
@@ -58,6 +66,7 @@ export default function Carrito() {
           "noopener",
         );
       clear();
+      checkoutToken.current = crypto.randomUUID();
       toast.success("Pedido recibido. Continuamos por WhatsApp.");
     } catch (error: any) {
       toast.error(error.message ?? "No pudimos crear el pedido");

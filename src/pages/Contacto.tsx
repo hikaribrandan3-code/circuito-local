@@ -1,11 +1,17 @@
 import { FormEvent, useState } from "react";
-import { StoreLoading, StoreShell, useCurrentStore } from "@/components/StoreShell";
+import {
+  StoreLoading,
+  StoreShell,
+  StoreUnavailable,
+  useCurrentStore,
+} from "@/components/StoreShell";
 
 export default function Contacto() {
-  const { store, loading } = useCurrentStore();
+  const { store, loading, error } = useCurrentStore();
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
-  if (loading || !store) return <StoreLoading />;
+  if (loading) return <StoreLoading />;
+  if (!store) return <StoreUnavailable message={error || undefined} />;
   const send = (event: FormEvent) => {
     event.preventDefault();
     const phone = store.settings.whatsapp_number?.replace(/\D/g, "");

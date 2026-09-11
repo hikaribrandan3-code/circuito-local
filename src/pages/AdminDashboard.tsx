@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   const [store, setStore] = useState<Store | null>(null);
   const [tab, setTab] = useState<Tab>("store");
   const [loading, setLoading] = useState(true);
-  async function load() {
+  const load = useCallback(async () => {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) return navigate("/admin/login", { replace: true });
     setUser(auth.user);
@@ -52,10 +52,10 @@ export default function AdminDashboard() {
           )?.config ?? {},
       });
     setLoading(false);
-  }
+  }, [navigate]);
   useEffect(() => {
-    load();
-  }, []);
+    void load();
+  }, [load]);
   if (loading)
     return (
       <div className="min-h-screen grid place-items-center text-muted-foreground">Cargando…</div>
@@ -193,19 +193,23 @@ function StoreTab({ store, onSaved }: { store: Store; onSaved: () => void }) {
     toast.success("Tienda actualizada");
     onSaved();
   }
-  async function uploadLogo(file?: File) {
+  async function uploadBrandImage(file: File | undefined, kind: "logo" | "hero") {
     if (!file) return;
-    const compressed = await compressImage(file);
-    const path = `stores/${store.id}/branding/logo-${Date.now()}.webp`;
-    const { error } = await supabase.storage.from("store-media").upload(path, compressed);
-    if (error) return toast.error(error.message);
-    const result = await supabase
-      .from("store_settings")
-      .update({ logo_path: path })
-      .eq("store_id", store.id);
-    if (result.error) return toast.error(result.error.message);
-    clearStoreCache(store.slug);
-    onSaved();
+    try {
+      const compressed = await compressImage(file);
+      const path = `stores/${store.id}/branding/${kind}-${Date.now()}.webp`;
+      const { error } = await supabase.storage.from("store-media").upload(path, compressed);
+      if (error) throw error;
+      const update =
+        kind === "logo" ? { logo_path: path } : { hero_path: path, hero_media_type: "image" };
+      const result = await supabase.from("store_settings").update(update).eq("store_id", store.id);
+      if (result.error) throw result.error;
+      clearStoreCache(store.slug);
+      toast.success(kind === "logo" ? "Logo actualizado" : "Imagen de portada actualizada");
+      onSaved();
+    } catch (error: any) {
+      toast.error(error.message ?? "No pudimos subir la imagen");
+    }
   }
   return (
     <form onSubmit={submit} className="max-w-xl space-y-4 rounded-3xl border bg-card p-6">
@@ -224,7 +228,16 @@ function StoreTab({ store, onSaved }: { store: Store; onSaved: () => void }) {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => uploadLogo(e.target.files?.[0])}
+          onChange={(e) => uploadBrandImage(e.target.files?.[0], "logo")}
+          className="mt-1 block text-sm"
+        />
+      </label>
+      <label className="block text-sm">
+        Imagen de portada
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/avif"
+          onChange={(e) => uploadBrandImage(e.target.files?.[0], "hero")}
           className="mt-1 block text-sm"
         />
       </label>
@@ -299,13 +312,16 @@ function ProductsTab({ store }: { store: Store }) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [name, setName] = useState("");
+  const [productSlug, setProductSlug] = useState("");
   const [price, setPrice] = useState(0);
   const [categoryId, setCategoryId] = useState("");
   const [description, setDescription] = useState("");
   const [options, setOptions] = useState("");
   const [files, setFiles] = useState<FileList | null>(null);
+  const [trackInventory, setTrackInventory] = useState(false);
+  const [inventoryQuantity, setInventoryQuantity] = useState(0);
   const [publishing, setPublishing] = useState(false);
-  const load = async () => {
+  const load = useCallback(async () => {
     const [c, p] = await Promise.all([
       supabase
         .from("categories")
@@ -314,24 +330,35 @@ function ProductsTab({ store }: { store: Store }) {
         .order("display_order"),
       supabase
         .from("products")
-        .select("id,name,slug,price,status,availability,product_images(storage_path)")
+        .select(
+          "id,name,slug,description,category_id,price,status,availability,track_inventory,inventory_quantity,product_images(id,storage_path,display_order)",
+        )
         .eq("store_id", store.id)
         .neq("status", "archived")
         .order("created_at", { ascending: false }),
     ]);
     setCategories((c.data ?? []) as Category[]);
     setProducts((p.data ?? []) as any);
-  };
-  useEffect(() => {
-    load();
   }, [store.id]);
+  useEffect(() => {
+    void load();
+  }, [load]);
   async function addCategory() {
     const title = prompt("Nombre de categoría");
     if (!title) return;
+    const parentName = prompt("Categoría padre (dejalo vacío para una categoría principal)");
+    const parent = parentName
+      ? categories.find(
+          (category) =>
+            !category.parent_id && category.name.toLowerCase() === parentName.toLowerCase(),
+        )
+      : null;
+    if (parentName && !parent) return toast.error("No encontramos esa categoría principal");
     const { error } = await supabase.from("categories").insert({
       store_id: store.id,
       name: title,
-      slug: `${slugify(title)}-${Date.now().toString(36)}`,
+      parent_id: parent?.id ?? null,
+      slug: slugify(title),
       display_order: categories.length,
     });
     if (error) toast.error(error.message);
@@ -340,23 +367,10 @@ function ProductsTab({ store }: { store: Store }) {
   async function create(event: FormEvent) {
     event.preventDefault();
     setPublishing(true);
+    let createdProductId: string | null = null;
+    const uploadedPaths: string[] = [];
     try {
-      const slug = `${slugify(name)}-${Date.now().toString(36)}`;
-      const { data: product, error } = await supabase
-        .from("products")
-        .insert({
-          store_id: store.id,
-          category_id: categoryId || null,
-          slug,
-          name,
-          description: description || null,
-          price,
-          status: "published",
-          availability: "available",
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
+      if (files && files.length > 8) throw new Error("Podés subir hasta 8 fotos por producto");
       const parsed = options
         .split("\n")
         .map((line) => line.split(":"))
@@ -368,6 +382,28 @@ function ProductsTab({ store }: { store: Store }) {
             .map((value) => value.trim())
             .filter(Boolean),
         }));
+      if (parsed.some((option) => !option.name || option.values.length === 0)) {
+        throw new Error("Cada opción necesita un nombre y al menos un valor");
+      }
+      const slug = slugify(productSlug || name);
+      const { data: product, error } = await supabase
+        .from("products")
+        .insert({
+          store_id: store.id,
+          category_id: categoryId || null,
+          slug,
+          name,
+          description: description || null,
+          price,
+          status: "draft",
+          availability: "available",
+          track_inventory: trackInventory && parsed.length === 0,
+          inventory_quantity: trackInventory && parsed.length === 0 ? inventoryQuantity : null,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      createdProductId = product.id;
       const optionRows: { id: string; values: string[] }[] = [];
       for (let index = 0; index < parsed.length; index++) {
         const option = parsed[index];
@@ -420,6 +456,7 @@ function ProductsTab({ store }: { store: Store }) {
           .from("store-media")
           .upload(path, compressed);
         if (uploadError) throw uploadError;
+        uploadedPaths.push(path);
         const { error: imageError } = await supabase.from("product_images").insert({
           store_id: store.id,
           product_id: product.id,
@@ -428,15 +465,25 @@ function ProductsTab({ store }: { store: Store }) {
         });
         if (imageError) throw imageError;
       }
+      const { error: publishError } = await supabase
+        .from("products")
+        .update({ status: "published" })
+        .eq("id", product.id);
+      if (publishError) throw publishError;
       clearStoreCache(store.slug);
       toast.success("Producto publicado");
       setName("");
+      setProductSlug("");
       setPrice(0);
       setDescription("");
       setOptions("");
       setFiles(null);
+      setTrackInventory(false);
+      setInventoryQuantity(0);
       load();
     } catch (error: any) {
+      if (uploadedPaths.length) await supabase.storage.from("store-media").remove(uploadedPaths);
+      if (createdProductId) await supabase.from("products").delete().eq("id", createdProductId);
       toast.error(error.message ?? "No pudimos crear el producto");
     } finally {
       setPublishing(false);
@@ -449,6 +496,92 @@ function ProductsTab({ store }: { store: Store }) {
       clearStoreCache(store.slug);
       load();
     }
+  }
+  async function updateProduct(id: string, patch: Record<string, unknown>) {
+    const { error } = await supabase.from("products").update(patch).eq("id", id);
+    if (error) return toast.error(error.message);
+    clearStoreCache(store.slug);
+    load();
+  }
+  async function editPrice(product: any) {
+    const nextName = prompt("Nombre", product.name);
+    if (nextName === null || !nextName.trim()) return;
+    const nextDescription = prompt("Descripción", product.description ?? "");
+    if (nextDescription === null) return;
+    const next = prompt("Precio", String(product.price));
+    if (next === null) return;
+    const priceValue = Number(next);
+    if (!Number.isFinite(priceValue) || priceValue < 0) return toast.error("Precio inválido");
+    const nextCategory = prompt(
+      "Categoría (dejá vacío para sin categoría)",
+      categories.find((category) => category.id === product.category_id)?.name ?? "",
+    );
+    if (nextCategory === null) return;
+    const category = nextCategory.trim()
+      ? categories.find((item) => item.name.toLowerCase() === nextCategory.trim().toLowerCase())
+      : null;
+    if (nextCategory.trim() && !category) return toast.error("Elegí una categoría existente");
+    updateProduct(product.id, {
+      name: nextName.trim(),
+      description: nextDescription.trim() || null,
+      price: priceValue,
+      category_id: category?.id ?? null,
+    });
+  }
+  async function setInventory(product: any) {
+    const next = prompt("Unidades disponibles", String(product.inventory_quantity ?? 0));
+    if (next === null) return;
+    const quantity = Number(next);
+    if (!Number.isInteger(quantity) || quantity < 0) return toast.error("Stock inválido");
+    await updateProduct(product.id, {
+      inventory_quantity: quantity,
+      availability: quantity === 0 ? "sold_out" : "available",
+    });
+  }
+  async function appendImages(product: any, selected: FileList | null) {
+    if (!selected?.length) return;
+    if (selected.length + (product.product_images?.length ?? 0) > 8)
+      return toast.error("Podés tener hasta 8 fotos por producto");
+    try {
+      const nextDisplayOrder =
+        Math.max(
+          -1,
+          ...(product.product_images ?? []).map(
+            (image: { display_order: number }) => image.display_order,
+          ),
+        ) + 1;
+      for (const [index, file] of Array.from(selected).entries()) {
+        const compressed = await compressImage(file);
+        const path = `stores/${store.id}/products/${product.id}/${nextDisplayOrder + index}-${Date.now()}.webp`;
+        const { error: uploadError } = await supabase.storage
+          .from("store-media")
+          .upload(path, compressed);
+        if (uploadError) throw uploadError;
+        const { error: imageError } = await supabase.from("product_images").insert({
+          store_id: store.id,
+          product_id: product.id,
+          storage_path: path,
+          display_order: nextDisplayOrder + index,
+        });
+        if (imageError) throw imageError;
+      }
+      clearStoreCache(store.slug);
+      toast.success("Fotos agregadas");
+      load();
+    } catch (error: any) {
+      toast.error(error.message ?? "No pudimos subir las fotos");
+    }
+  }
+  async function removeImage(image: { id: string; storage_path: string }) {
+    if (!confirm("¿Quitar esta foto del producto?")) return;
+    const { error: storageError } = await supabase.storage
+      .from("store-media")
+      .remove([image.storage_path]);
+    if (storageError) return toast.error(storageError.message);
+    const { error } = await supabase.from("product_images").delete().eq("id", image.id);
+    if (error) return toast.error(error.message);
+    clearStoreCache(store.slug);
+    load();
   }
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -465,23 +598,72 @@ function ProductsTab({ store }: { store: Store }) {
               key={product.id}
               className="flex items-center gap-3 rounded-2xl border bg-card p-3"
             >
-              <img
-                src={
-                  product.product_images?.[0]?.storage_path
-                    ? supabase.storage
-                        .from("store-media")
-                        .getPublicUrl(product.product_images[0].storage_path).data.publicUrl
-                    : "/images/regalos-special.png"
-                }
-                alt=""
-                className="h-14 w-14 rounded-xl object-cover"
-              />
+              <div className="relative">
+                <img
+                  src={
+                    product.product_images?.[0]?.storage_path
+                      ? supabase.storage
+                          .from("store-media")
+                          .getPublicUrl(product.product_images[0].storage_path).data.publicUrl
+                      : "/images/regalos-special.png"
+                  }
+                  alt=""
+                  className="h-14 w-14 rounded-xl object-cover"
+                />
+                {product.product_images?.[0] && (
+                  <button
+                    aria-label="Quitar foto principal"
+                    className="absolute -right-2 -top-2 rounded-full border bg-card px-1 text-xs"
+                    onClick={() => removeImage(product.product_images[0])}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
               <div className="flex-1">
                 <p className="font-medium">{product.name}</p>
                 <p className="text-sm text-muted-foreground">
                   {formatMoney(product.price)} · {product.status}
                 </p>
               </div>
+              <button className="text-sm underline" onClick={() => editPrice(product)}>
+                Editar
+              </button>
+              <label className="cursor-pointer text-sm underline">
+                Fotos
+                <input
+                  className="sr-only"
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp,image/avif"
+                  onChange={(event) => appendImages(product, event.target.files)}
+                />
+              </label>
+              {product.track_inventory && (
+                <button className="text-sm underline" onClick={() => setInventory(product)}>
+                  Stock
+                </button>
+              )}
+              <button
+                className="text-sm underline"
+                onClick={() =>
+                  updateProduct(product.id, {
+                    availability: product.availability === "available" ? "sold_out" : "available",
+                  })
+                }
+              >
+                {product.availability === "available" ? "Agotar" : "Disponible"}
+              </button>
+              <button
+                className="text-sm underline"
+                onClick={() =>
+                  updateProduct(product.id, {
+                    status: product.status === "published" ? "draft" : "published",
+                  })
+                }
+              >
+                {product.status === "published" ? "Ocultar" : "Publicar"}
+              </button>
               <button className="text-sm text-destructive" onClick={() => archive(product.id)}>
                 Archivar
               </button>
@@ -496,6 +678,12 @@ function ProductsTab({ store }: { store: Store }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Nombre"
+          className="w-full rounded-xl border p-2"
+        />
+        <input
+          value={productSlug}
+          onChange={(e) => setProductSlug(slugify(e.target.value))}
+          placeholder="URL del producto (opcional)"
           className="w-full rounded-xl border p-2"
         />
         <input
@@ -525,10 +713,28 @@ function ProductsTab({ store }: { store: Store }) {
           placeholder="Descripción"
           className="min-h-24 w-full rounded-xl border p-2"
         />
+        <label className="flex gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={trackInventory}
+            onChange={(e) => setTrackInventory(e.target.checked)}
+          />
+          Controlar stock (sólo productos sin variantes)
+        </label>
+        {trackInventory && !options.trim() && (
+          <input
+            min="0"
+            type="number"
+            value={inventoryQuantity}
+            onChange={(e) => setInventoryQuantity(Math.max(0, Number(e.target.value)))}
+            placeholder="Unidades disponibles"
+            className="w-full rounded-xl border p-2"
+          />
+        )}
         <input
           type="file"
           multiple
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/avif"
           onChange={(e) => setFiles(e.target.files)}
           className="block w-full text-sm"
         />
@@ -554,21 +760,24 @@ function ProductsTab({ store }: { store: Store }) {
 
 function OrdersTab({ store }: { store: Store }) {
   const [orders, setOrders] = useState<any[]>([]);
-  const load = () =>
-    supabase
-      .from("orders")
-      .select(
-        "id,order_number,status,customer_name,customer_phone,total,fulfillment_method,delivery_address,created_at,order_items(product_name,variant_label,quantity,unit_price)",
-      )
-      .eq("store_id", store.id)
-      .order("created_at", { ascending: false })
-      .then(({ data, error }) => {
-        if (error) toast.error(error.message);
-        setOrders(data ?? []);
-      });
+  const load = useCallback(
+    () =>
+      supabase
+        .from("orders")
+        .select(
+          "id,order_number,status,customer_name,customer_phone,total,fulfillment_method,delivery_address,created_at,order_items(product_name,variant_label,quantity,unit_price)",
+        )
+        .eq("store_id", store.id)
+        .order("created_at", { ascending: false })
+        .then(({ data, error }) => {
+          if (error) toast.error(error.message);
+          setOrders(data ?? []);
+        }),
+    [store.id],
+  );
   useEffect(() => {
-    load();
-  }, [store.id]);
+    void load();
+  }, [load]);
   async function fulfill(id: string) {
     const { error } = await supabase.rpc("mark_order_fulfilled", { p_order_id: id });
     if (error) toast.error(error.message);
