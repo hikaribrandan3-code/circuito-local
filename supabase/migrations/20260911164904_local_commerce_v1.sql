@@ -6,6 +6,24 @@ create extension if not exists pgcrypto;
 create extension if not exists citext;
 
 -- The prototype project is dedicated to this product. Retire its incompatible model.
+-- These drops also make the rebuild safely rerunnable after a partially applied
+-- SQL Editor execution.
+drop table if exists public.order_items cascade;
+drop table if exists public.orders cascade;
+drop table if exists public.customers cascade;
+drop table if exists public.variant_option_values cascade;
+drop table if exists public.product_variants cascade;
+drop table if exists public.product_option_values cascade;
+drop table if exists public.product_options cascade;
+drop table if exists public.product_images cascade;
+drop table if exists public.products cascade;
+drop table if exists public.categories cascade;
+drop table if exists public.storefront_configs cascade;
+drop table if exists public.store_settings cascade;
+drop table if exists public.store_members cascade;
+drop table if exists public.stores cascade;
+drop table if exists public.profiles cascade;
+
 drop table if exists public.shop_customers cascade;
 drop table if exists public.orders cascade;
 drop table if exists public.delivery_settings cascade;
