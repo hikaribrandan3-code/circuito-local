@@ -60,16 +60,19 @@ export default function Index() {
               )}
             </div>
           </div>
-          {store.settings.hero_path && (
-            <img
-              src={mediaUrl(store.settings.hero_path, 1200)}
-              alt=""
-              fetchPriority="high"
-              width="1200"
-              height="900"
-              className="w-full aspect-[4/3] rounded-3xl object-cover shadow-elegant"
-            />
-          )}
+          <img
+            src={
+              store.settings.hero_path
+                ? mediaUrl(store.settings.hero_path, 1200)
+                : "/images/boutique-hero.png"
+            }
+            alt=""
+            fetchPriority="high"
+            width="1200"
+            height="900"
+            decoding="async"
+            className="w-full aspect-[4/3] md:aspect-[3/2] rounded-3xl object-cover shadow-elegant"
+          />
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-4 lg:px-8 py-16">
