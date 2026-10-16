@@ -1,6 +1,7 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { CartProvider } from "@/lib/cart";
+import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import Index from "@/pages/Index";
 import Catalogo from "@/pages/Catalogo";
@@ -17,25 +18,60 @@ const AdminFallback = () => (
   </div>
 );
 
+function StorefrontEntry() {
+  const configuredSlug = import.meta.env.VITE_DEFAULT_STORE_SLUG?.trim();
+  const [storeSlug, setStoreSlug] = useState(configuredSlug ?? "");
+  const [loading, setLoading] = useState(!configuredSlug);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (configuredSlug) return;
+    let active = true;
+    supabase
+      .from("stores")
+      .select("slug")
+      .eq("is_published", true)
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data, error: queryError }) => {
+        if (!active) return;
+        if (queryError || !data?.slug) setError(true);
+        else setStoreSlug(data.slug);
+      })
+      .finally(() => active && setLoading(false));
+    return () => {
+      active = false;
+    };
+  }, [configuredSlug]);
+
+  if (storeSlug) return <Navigate to={`/${storeSlug}`} replace />;
+  if (loading)
+    return <div className="min-h-screen grid place-items-center text-muted-foreground">Cargando tienda…</div>;
+  return (
+    <div className="min-h-screen grid place-items-center p-6 text-center">
+      <div>
+        <p className="font-display text-4xl">Tu tienda local, en un link.</p>
+        <p className="mt-3 text-muted-foreground">
+          {error
+            ? "No encontramos una tienda publicada. Revisá la configuración o entrá a administración."
+            : "Publicá tu tienda para verla acá."}
+        </p>
+        <a className="mt-6 inline-block underline" href="/admin">
+          Administrar mi tienda
+        </a>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <CartProvider>
       <Routes>
         <Route
           path="/"
-          element={
-            <div className="min-h-screen grid place-items-center p-6 text-center">
-              <div>
-                <p className="font-display text-4xl">Tu tienda local, en un link.</p>
-                <p className="mt-3 text-muted-foreground">
-                  Ingresá a tu tienda con su enlace o administrala desde aquí.
-                </p>
-                <a className="mt-6 inline-block underline" href="/admin">
-                  Administrar mi tienda
-                </a>
-              </div>
-            </div>
-          }
+          element={<StorefrontEntry />}
         />
         <Route
           path="/admin/login"
