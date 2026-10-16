@@ -1,79 +1,67 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { Product, Store, Variant } from "./commerce";
+import type { Product } from "./products";
 
-export type CartItem = { key: string; product: Product; variant: Variant | null; quantity: number };
-type CartContext = {
+export type CartItem = { product: Product; qty: number };
+
+type CartCtx = {
   items: CartItem[];
-  add: (product: Product, variant?: Variant | null) => void;
-  remove: (key: string) => void;
-  setQuantity: (key: string, quantity: number) => void;
+  add: (p: Product) => void;
+  remove: (id: string) => void;
+  setQty: (id: string, qty: number) => void;
   clear: () => void;
   count: number;
-  subtotal: number;
+  total: number;
 };
-const Cart = createContext<CartContext | null>(null);
-const keyFor = (product: Product, variant?: Variant | null) =>
-  `${product.store_id}:${product.id}:${variant?.id ?? "base"}`;
+
+const Ctx = createContext<CartCtx | null>(null);
+
+const STORAGE = "circuito-cart-v1";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+
   useEffect(() => {
     try {
-      setItems(JSON.parse(localStorage.getItem("circuito-cart-v2") ?? "[]"));
+      const raw = localStorage.getItem(STORAGE);
+      if (raw) setItems(JSON.parse(raw));
     } catch {
-      setItems([]);
+      // ignore
     }
   }, []);
+
   useEffect(() => {
-    localStorage.setItem("circuito-cart-v2", JSON.stringify(items));
+    try {
+      localStorage.setItem(STORAGE, JSON.stringify(items));
+    } catch {
+      // ignore
+    }
   }, [items]);
-  const value = useMemo<CartContext>(
-    () => ({
-      items,
-      add(product, variant = null) {
-        const key = keyFor(product, variant);
-        setItems((previous) => {
-          // A cart is deliberately scoped to one storefront. Mixing tenants is
-          // confusing and can never be checked out as one local order.
-          if (previous[0] && previous[0].product.store_id !== product.store_id) {
-            return [{ key, product, variant, quantity: 1 }];
-          }
-          return previous.some((item) => item.key === key)
-            ? previous.map((item) =>
-                item.key === key ? { ...item, quantity: item.quantity + 1 } : item,
-              )
-            : [...previous, { key, product, variant, quantity: 1 }];
-        });
-      },
-      remove(key) {
-        setItems((previous) => previous.filter((item) => item.key !== key));
-      },
-      setQuantity(key, quantity) {
-        setItems((previous) =>
-          previous
-            .map((item) => (item.key === key ? { ...item, quantity: Math.max(0, quantity) } : item))
-            .filter((item) => item.quantity),
-        );
-      },
-      clear() {
-        setItems([]);
-      },
-      count: items.reduce((sum, item) => sum + item.quantity, 0),
-      subtotal: items.reduce(
-        (sum, item) => sum + (item.variant?.price ?? item.product.price) * item.quantity,
-        0,
-      ),
-    }),
-    [items],
-  );
-  return <Cart.Provider value={value}>{children}</Cart.Provider>;
+
+  const value = useMemo<CartCtx>(() => {
+    const add = (p: Product) =>
+      setItems((prev) => {
+        const found = prev.find((i) => i.product.id === p.id);
+        if (found) return prev.map((i) => (i.product.id === p.id ? { ...i, qty: i.qty + 1 } : i));
+        return [...prev, { product: p, qty: 1 }];
+      });
+    const remove = (id: string) => setItems((prev) => prev.filter((i) => i.product.id !== id));
+    const setQty = (id: string, qty: number) =>
+      setItems((prev) =>
+        prev
+          .map((i) => (i.product.id === id ? { ...i, qty: Math.max(0, qty) } : i))
+          .filter((i) => i.qty > 0),
+      );
+    const clear = () => setItems([]);
+    const count = items.reduce((s, i) => s + i.qty, 0);
+    const total = items.reduce((s, i) => s + i.qty * i.product.price, 0);
+    return { items, add, remove, setQty, clear, count, total };
+  }, [items]);
+
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 export function useCart() {
-  const context = useContext(Cart);
-  if (!context) throw new Error("useCart must be used inside CartProvider");
-  return context;
-}
-export function cartStore(items: CartItem[]): Store["id"] | null {
-  return items[0]?.product.store_id ?? null;
+  const c = useContext(Ctx);
+  if (!c) throw new Error("useCart must be used within CartProvider");
+  return c;
 }

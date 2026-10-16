@@ -84,7 +84,7 @@
   --warning: oklch(0.75 0.15 75);
   --warning-foreground: oklch(0.18 0.012 60);
 
-  --border: oklch(0.9 0 0);
+  --border: oklch(0.90 0 0);
   --input: oklch(0.97 0 0);
   --ring: oklch(0.78 0.09 235);
 
@@ -96,7 +96,7 @@
   --shadow-elegant: 0 20px 60px -30px oklch(0 0 0 / 30%);
 
   --glass-bg: oklch(1 0 0 / 80%);
-  --glass-border: oklch(0.9 0 0 / 70%);
+  --glass-border: oklch(0.90 0 0 / 70%);
 }
 
 /* ============================================
@@ -122,10 +122,10 @@
   --celeste: oklch(0.78 0.09 235);
   --celeste-foreground: oklch(0.14 0 0);
 
-  --gold: oklch(0.8 0.13 80);
+  --gold: oklch(0.80 0.13 80);
   --gold-foreground: oklch(0.14 0 0);
 
-  --accent: oklch(0.8 0.13 80);
+  --accent: oklch(0.80 0.13 80);
   --accent-foreground: oklch(0.14 0 0);
 
   --secondary: oklch(0.24 0 0);
@@ -148,17 +148,16 @@
   --ring: oklch(0.78 0.09 235);
 
   /* Faint accent glows on black instead of cream wash */
-  --gradient-radial:
-    radial-gradient(circle at 15% 0%, oklch(0.78 0.09 235 / 8%), transparent 55%),
-    radial-gradient(circle at 90% 100%, oklch(0.8 0.13 80 / 6%), transparent 55%);
-  --gradient-warm: linear-gradient(135deg, oklch(0.2 0 0), oklch(0.16 0 0));
+  --gradient-radial: radial-gradient(circle at 15% 0%, oklch(0.78 0.09 235 / 8%), transparent 55%),
+                     radial-gradient(circle at 90% 100%, oklch(0.80 0.13 80 / 6%), transparent 55%);
+  --gradient-warm: linear-gradient(135deg, oklch(0.20 0 0), oklch(0.16 0 0));
 
   /* Deeper shadows for lift on dark surfaces */
   --shadow-soft: 0 1px 2px oklch(0 0 0 / 40%), 0 8px 24px -12px oklch(0 0 0 / 60%);
   --shadow-elegant: 0 20px 60px -30px oklch(0 0 0 / 80%);
 
   --glass-bg: oklch(0.16 0 0 / 80%);
-  --glass-border: oklch(0.3 0 0 / 70%);
+  --glass-border: oklch(0.30 0 0 / 70%);
 }
 
 /* glass-strong has a baked-in light value — override for dark */
@@ -182,10 +181,7 @@
     background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
   }
-  h1,
-  h2,
-  h3,
-  h4 {
+  h1, h2, h3, h4 {
     font-family: var(--font-display);
     font-weight: 500;
     letter-spacing: -0.015em;
@@ -209,21 +205,13 @@
     font-family: var(--font-display);
     font-style: italic;
   }
-  .shadow-soft {
-    box-shadow: var(--shadow-soft);
-  }
-  .shadow-elegant {
-    box-shadow: var(--shadow-elegant);
-  }
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-elegant { box-shadow: var(--shadow-elegant); }
   .marquee {
     animation: marquee 35s linear infinite;
   }
   @keyframes marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
 }

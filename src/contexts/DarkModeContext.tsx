@@ -27,7 +27,11 @@ export function DarkModeProvider({ children }: { children: React.ReactNode }) {
 
   const toggle = () => setIsDark((prev) => !prev);
 
-  return <DarkModeContext.Provider value={{ isDark, toggle }}>{children}</DarkModeContext.Provider>;
+  return (
+    <DarkModeContext.Provider value={{ isDark, toggle }}>
+      {children}
+    </DarkModeContext.Provider>
+  );
 }
 
 export function useDarkMode() {

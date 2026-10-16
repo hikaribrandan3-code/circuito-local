@@ -1,112 +1,96 @@
-import { FormEvent, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+
+// Whitelist — only these emails can access admin
+const ALLOWED_EMAILS = [
+  "hikaribrandan3@gmail.com",
+  "owner@absstore.local", // Placeholder — owner adds their email after signup
+];
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [mode, setMode] = useState<"login" | "signup" | "forgot" | "reset">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
-    if (searchParams.get("mode") === "reset") setMode("reset");
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session && mode !== "reset") navigate("/admin", { replace: true });
+      if (data.session) navigate("/admin", { replace: true });
     });
-  }, [mode, navigate, searchParams]);
-  async function submit(event: FormEvent) {
-    event.preventDefault();
+  }, [navigate]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+
+    // Check whitelist before anything
+    const isAllowed = ALLOWED_EMAILS.includes(email.toLowerCase());
+    if (!isAllowed) {
+      toast.error("Email no autorizado", { description: "Solo ciertos emails pueden acceder al admin." });
+      return;
+    }
+
     setLoading(true);
-    let error;
-    if (mode === "signup") ({ error } = await supabase.auth.signUp({ email, password }));
-    else if (mode === "forgot")
-      ({ error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/admin/login?mode=reset`,
-      }));
-    else if (mode === "reset") ({ error } = await supabase.auth.updateUser({ password }));
-    else ({ error } = await supabase.auth.signInWithPassword({ email, password }));
-    if (error) {
-      toast.error(error.message);
-    } else if (mode === "signup") toast.success("Revisá tu email para confirmar la cuenta.");
-    else if (mode === "forgot")
-      toast.success("Te enviamos un enlace para restablecer tu contraseña.");
-    else if (mode === "reset") {
-      toast.success("Contraseña actualizada.");
+    try {
+      const fn =
+        mode === "login"
+          ? supabase.auth.signInWithPassword({ email, password })
+          : supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/admin` } });
+      const { error, data } = await fn;
+      if (error) throw error;
+
+      // For signup, verify whitelist worked
+      if (mode === "signup" && data.user) {
+        toast.success("Cuenta creada");
+      } else {
+        toast.success("Bienvenido");
+      }
+
       navigate("/admin", { replace: true });
-    } else navigate("/admin", { replace: true });
-    setLoading(false);
+    } catch (err: any) {
+      toast.error(err.message ?? "Error");
+    } finally {
+      setLoading(false);
+    }
   }
-  const title =
-    mode === "signup"
-      ? "Crear cuenta"
-      : mode === "forgot"
-        ? "Recuperar contraseña"
-        : mode === "reset"
-          ? "Nueva contraseña"
-          : "Administrá tu tienda";
-  const button =
-    mode === "signup"
-      ? "Crear cuenta"
-      : mode === "forgot"
-        ? "Enviar enlace"
-        : mode === "reset"
-          ? "Guardar contraseña"
-          : "Ingresar";
+
   return (
-    <div className="min-h-screen grid place-items-center px-4">
-      <form
-        onSubmit={submit}
-        className="w-full max-w-sm rounded-3xl border bg-card p-8 shadow-soft"
-      >
-        <h1 className="font-display text-3xl">{title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Usá tu email para administrar tu tienda.
-        </p>
-        <input
-          required
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-6 w-full rounded-xl border bg-background px-3 py-2"
-        />
-        {mode !== "forgot" && (
-          <input
-            required
-            minLength={6}
-            type="password"
-            placeholder={mode === "reset" ? "Nueva contraseña" : "Contraseña"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-3 w-full rounded-xl border bg-background px-3 py-2"
-          />
-        )}
+    <div className="flex min-h-[80vh] items-center justify-center px-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-5 rounded-2xl border border-border bg-card p-8 shadow-sm">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {mode === "login" ? "Ingresá para administrar tu tienda." : "Creá tu cuenta de dueño."}
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="password">Contraseña</Label>
+          <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {mode === "login" ? "Ingresar" : "Crear cuenta"}
+        </Button>
         <button
-          disabled={loading}
-          className="mt-6 w-full rounded-full bg-primary py-3 font-medium text-primary-foreground disabled:opacity-50"
+          type="button"
+          onClick={() => setMode(mode === "login" ? "signup" : "login")}
+          className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
         >
-          {loading ? "Procesando…" : button}
+          {mode === "login" ? "¿No tenés cuenta? Crear una" : "¿Ya tenés cuenta? Ingresar"}
         </button>
-        {mode === "login" && (
-          <button
-            type="button"
-            onClick={() => setMode("forgot")}
-            className="mt-4 w-full text-sm underline"
-          >
-            ¿Olvidaste tu contraseña?
-          </button>
-        )}
-        {mode !== "reset" && (
-          <button
-            type="button"
-            onClick={() => setMode(mode === "signup" ? "login" : "signup")}
-            className="mt-3 w-full text-sm text-muted-foreground underline"
-          >
-            {mode === "signup" ? "Ya tengo una cuenta" : "Crear una cuenta"}
-          </button>
-        )}
+        <Link to="/" className="block text-center text-xs text-muted-foreground hover:text-foreground">
+          ← Volver al sitio
+        </Link>
       </form>
     </div>
   );
