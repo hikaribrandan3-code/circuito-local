@@ -15,7 +15,7 @@ type CartCtx = {
 
 const Ctx = createContext<CartCtx | null>(null);
 
-const STORAGE = "circuito-cart-v1";
+const STORAGE = "re-urban-cart-v1";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);

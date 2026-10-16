@@ -1,10 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingBag, Menu, Sun, Moon } from "lucide-react";
+import { Search, ShoppingBag, Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/lib/cart";
-import { useDarkMode } from "@/contexts/DarkModeContext";
 import { CATEGORIES, STORE } from "@/lib/products";
 import {
   DropdownMenu,
@@ -15,7 +14,6 @@ import {
 
 export function Header() {
   const { count } = useCart();
-  const { isDark, toggle } = useDarkMode();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
@@ -27,19 +25,20 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full glass-strong border-b">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 lg:px-8">
-        <Link to="/" className="flex items-center gap-3 shrink-0">
-          <img src="/logo.svg" alt="ASB Store" className="h-10 w-10 object-contain" />
-          <div className="flex flex-col leading-none">
-            <span className="font-display text-2xl font-semibold tracking-tight text-foreground">
-              {STORE.name}
-            </span>
-          </div>
+        <Link to="/" aria-label="R&E Urban Style · Inicio" className="shrink-0">
+          <img
+            src="/re-logo.svg"
+            alt="R&E Urban Style"
+            className="h-10 w-28 object-contain object-left sm:h-11"
+          />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-1 ml-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="text-sm">Categorías</Button>
+              <Button variant="ghost" size="sm" className="text-sm">
+                Categorías
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="glass-strong">
               {CATEGORIES.map((c) => (
@@ -49,8 +48,12 @@ export function Header() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="ghost" size="sm" asChild><Link to="/catalogo">Catálogo</Link></Button>
-          <Button variant="ghost" size="sm" asChild><Link to="/contacto">Contacto</Link></Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/catalogo">Catálogo</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/contacto">Contacto</Link>
+          </Button>
         </nav>
 
         <form onSubmit={submit} className="hidden md:flex flex-1 max-w-sm ml-2">
@@ -59,25 +62,20 @@ export function Header() {
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Buscar flores, libros, mate..."
+              placeholder="Buscar prendas..."
               className="pl-9 bg-input/60 border-border rounded-full"
             />
           </div>
         </form>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Button asChild className="hidden sm:inline-flex bg-foreground text-background hover:bg-foreground/90 font-medium rounded-full">
-            <Link to="/contacto">Hacé tu pedido</Link>
-          </Button>
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggle}
-            aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
+            asChild
+            className="hidden sm:inline-flex bg-foreground text-background hover:bg-foreground/90 font-medium rounded-full"
           >
-            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            <Link to="/catalogo">Ver colección</Link>
           </Button>
-          <Button variant="ghost" size="icon" asChild className="relative">
+          <Button variant="ghost" size="icon" asChild className="relative h-11 w-11">
             <Link to="/carrito" aria-label="Carrito">
               <ShoppingBag className="h-5 w-5" />
               {count > 0 && (
@@ -89,11 +87,17 @@ export function Header() {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon"><Menu className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="h-11 w-11">
+                <Menu className="h-5 w-5" />
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="glass-strong">
-              <DropdownMenuItem asChild><Link to="/catalogo">Catálogo</Link></DropdownMenuItem>
-              <DropdownMenuItem asChild><Link to="/contacto">Contacto</Link></DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/catalogo">Catálogo</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/contacto">Contacto</Link>
+              </DropdownMenuItem>
               {CATEGORIES.map((c) => (
                 <DropdownMenuItem key={c.id} asChild>
                   <Link to={`/catalogo?cat=${c.id}`}>{c.label}</Link>

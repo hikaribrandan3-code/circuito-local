@@ -2,15 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
-import { DarkModeProvider } from "@/contexts/DarkModeContext";
 import "./styles.css";
+
+document.documentElement.classList.remove("dark");
+localStorage.removeItem("asb-dark-mode");
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <DarkModeProvider>
-        <App />
-      </DarkModeProvider>
+      <App />
     </BrowserRouter>
   </React.StrictMode>
 );

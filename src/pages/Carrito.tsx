@@ -1,19 +1,25 @@
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { Minus, Plus, ShoppingBag, Trash2, X, MapPin } from "lucide-react";
+import { motion } from "framer-motion";
+import { Minus, Plus, Trash2, MapPin, Check, ShoppingBag, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useStoreProducts } from "@/lib/useStoreProducts";
 import { useCart } from "@/lib/cart";
 import { formatARS, STORE } from "@/lib/products";
-import { supabase } from "@/integrations/supabase/client";
+import { storefrontDb as supabase } from "@/lib/storefrontDb";
 import { toast } from "sonner";
+
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export default function Carrito() {
   const { items, setQty, remove, total, clear } = useCart();
+  const { products } = useStoreProducts();
+  const isDemo = items.some((item) => item.product.demo);
+  const [demoConfirmed, setDemoConfirmed] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -26,6 +32,7 @@ export default function Carrito() {
 
   // Load delivery settings
   useEffect(() => {
+    if (!items.length || isDemo) return;
     async function loadDeliverySettings() {
       const { data: profiles } = await supabase.from("profiles").select("id").limit(1);
       const ownerId = profiles?.[0]?.id;
@@ -38,52 +45,120 @@ export default function Carrito() {
         if (data) setDeliveryPrice(data.delivery_price);
       }
     }
-    loadDeliverySettings();
-  }, []);
+    void loadDeliverySettings().catch(() => setDeliveryPrice(0));
+  }, [items.length, isDemo]);
 
   const getLocation = async () => {
     setLoadingLocation(true);
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setCustomerLat(position.coords.latitude);
-        setCustomerLon(position.coords.longitude);
-        setLoadingLocation(false);
-        toast.success("Ubicación detectada");
-      }, () => {
-        setLoadingLocation(false);
-        toast.error("No pudimos acceder a tu ubicación");
-      });
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCustomerLat(position.coords.latitude);
+          setCustomerLon(position.coords.longitude);
+          setLoadingLocation(false);
+          toast.success("Ubicación detectada");
+        },
+        () => {
+          setLoadingLocation(false);
+          toast.error("No pudimos acceder a tu ubicación");
+        },
+      );
     }
   };
 
-  const finalTotal = deliveryMethod === "delivery" ? total + deliveryPrice : total;
+  const effectiveDeliveryPrice = isDemo ? 3500 : deliveryPrice;
+  const finalTotal = deliveryMethod === "delivery" ? total + effectiveDeliveryPrice : total;
+
+  if (demoConfirmed)
+    return (
+      <div className="mx-auto max-w-lg px-5 py-16 text-center">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-white">
+          <Check size={28} />
+        </div>
+        <p className="mt-6 text-[10px] uppercase tracking-widest text-muted-foreground">
+          R&E Urban Style · Demo
+        </p>
+        <h1 className="mt-3 text-3xl font-medium">Así se vería tu confirmación.</h1>
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          Tu selección suma {formatARS(finalTotal)}. Esta es una vista de muestra: no se realizó un
+          cobro ni se envió un pedido.
+        </p>
+        <Button className="mt-7 rounded-full" onClick={() => setDemoConfirmed(false)}>
+          Volver a mi carrito
+        </Button>
+        <Link to="/" className="mt-4 block text-sm underline">
+          Seguir explorando
+        </Link>
+      </div>
+    );
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-xl px-4 py-24 text-center">
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-secondary">
-          <img
-            src="/sad-sleepy-emoticon-face-square-svgrepo-com.svg"
-            alt="sad face"
-            className="h-16 w-16 object-contain"
-            onError={(e) => {
-              // Fallback to emoji if SVG fails to load
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement!.innerHTML = '<span class="text-5xl select-none">😢</span>';
-            }}
-          />
-        </div>
-        <h1 className="mt-6 font-display text-4xl">Pobresito, tu carrito está vacío</h1>
-        <p className="mt-2 text-muted-foreground">Nada por aquí todavía... explorá el catálogo y encontrá el regalo perfecto.</p>
-        <Button asChild className="mt-8 bg-foreground text-background hover:bg-foreground/90 rounded-full">
-          <Link to="/catalogo">Ver catálogo</Link>
-        </Button>
+      <div className="mx-auto max-w-6xl px-4 pb-5 lg:px-8">
+        <section className="mx-auto max-w-lg py-12 text-center sm:py-16">
+          <ShoppingBag size={60} strokeWidth={1.4} className="mx-auto" aria-hidden="true" />
+          <h1 className="mt-6 text-2xl font-semibold tracking-tight sm:text-3xl">
+            Tu carrito está vacío
+          </h1>
+          <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Elegí tus favoritos de la colección y armá tu próximo look.
+          </p>
+          <Link
+            to="/catalogo"
+            className="mx-auto mt-6 flex min-h-12 w-[50vw] min-w-44 max-w-64 items-center justify-center gap-3 rounded-full bg-black px-5 text-sm font-medium text-white"
+          >
+            Ver catálogo <ArrowRight size={17} />
+          </Link>
+        </section>
+        <section className="border-t border-black/5 pt-6" aria-labelledby="recommendations-title">
+          <p className="text-[10px] uppercase tracking-[.2em] text-muted-foreground">
+            QUIZÁS TE GUSTE
+          </p>
+          <div className="mb-5 mt-1 flex items-center justify-between gap-3">
+            <h2 id="recommendations-title" className="text-lg font-semibold sm:text-2xl">
+              Populares de la colección
+            </h2>
+            <Link
+              to="/catalogo"
+              className="flex min-h-11 shrink-0 items-center gap-2 text-xs underline underline-offset-4"
+            >
+              Ver todo <ArrowRight size={15} />
+            </Link>
+          </div>
+          <div className="store-gallery-track flex snap-x snap-mandatory gap-3 overflow-x-auto pb-3">
+            {products.slice(0, 3).map((product) => (
+              <Link
+                key={product.id}
+                to={`/producto/${product.id}`}
+                className="w-[58vw] max-w-64 shrink-0 snap-start overflow-hidden rounded-2xl bg-white sm:w-60"
+              >
+                <div className="aspect-[4/5] overflow-hidden bg-neutral-100">
+                  <img
+                    src={product.image}
+                    alt={product.title}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="p-3">
+                  <h3 className="truncate text-sm font-medium">{product.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{formatARS(product.price)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       </div>
     );
   }
 
   async function checkout(e: React.FormEvent) {
     e.preventDefault();
+    if (isDemo) {
+      setShowModal(false);
+      setDemoConfirmed(true);
+      return;
+    }
     setSending(true);
 
     const orderItems = items.map((i) => ({
@@ -94,7 +169,13 @@ export default function Carrito() {
     }));
 
     // Find owner's user_id (single owner shop — get first profile)
-    const { data: profiles } = await supabase.from("profiles").select("id").limit(1);
+    const { data: profiles } = await supabase.from("profiles").select("id,phone").limit(1);
+    const destination = profiles?.[0]?.phone?.replace(/\D/g, "");
+    if (!destination) {
+      toast.error("El contacto de la tienda todavía no está configurado.");
+      setSending(false);
+      return;
+    }
     const ownerId = profiles?.[0]?.id;
 
     if (ownerId) {
@@ -122,15 +203,18 @@ export default function Carrito() {
       if (customerError) console.error("Failed to upsert customer:", customerError);
     }
 
-    const deliveryText = deliveryMethod === "delivery"
-      ? `Envío a domicilio (+${formatARS(deliveryPrice)})`
-      : "Retiro en tienda (gratis)";
+    const deliveryText =
+      deliveryMethod === "delivery"
+        ? `Envío a domicilio (+${formatARS(effectiveDeliveryPrice)})`
+        : "Retiro en tienda (gratis)";
 
-    const lines = items.map((i) => `• ${i.product.title} x${i.qty} — ${formatARS(i.product.price * i.qty)}`).join("\n");
+    const lines = items
+      .map((i) => `• ${i.product.title} x${i.qty} — ${formatARS(i.product.price * i.qty)}`)
+      .join("\n");
     const text = encodeURIComponent(
       `Hola ${STORE.name}, soy ${name} (${phone}).\n\nQuiero hacer este pedido:\n\n${lines}\n\n${deliveryText}\n\nTotal: ${formatARS(finalTotal)}`,
     );
-    window.open(`https://wa.me/${STORE.whatsapp}?text=${text}`, "_blank");
+    window.open(`https://wa.me/${destination}?text=${text}`, "_blank");
     toast.success("¡Pedido enviado!", { description: "Te esperamos para coordinar el envío." });
     setSending(false);
     setShowModal(false);
@@ -139,9 +223,16 @@ export default function Carrito() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 lg:px-8 py-10">
-      <h1 className="font-display text-4xl md:text-5xl">Tu pedido</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{items.length} {items.length === 1 ? "producto" : "productos"}</p>
+      <h1 className="font-display text-3xl font-medium">Tu carrito</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {items.length} {items.length === 1 ? "producto" : "productos"}
+      </p>
 
+      {isDemo && (
+        <p className="mt-4 rounded-2xl border border-white bg-white/60 px-4 py-3 text-xs text-muted-foreground">
+          Vista demo · fotos del local y precios ilustrativos. Podés recorrer el checkout completo.
+        </p>
+      )}
       <div className="mt-8 grid lg:grid-cols-[1fr_360px] gap-8">
         <ul className="space-y-3">
           {items.map((item, i) => (
@@ -150,15 +241,26 @@ export default function Carrito() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
-              className="flex gap-4 rounded-2xl bg-card border border-border p-4"
+              className="flex min-w-0 gap-3 rounded-3xl border border-white bg-white p-3 sm:gap-4 sm:p-5"
             >
               <Link to={`/producto/${item.product.id}`} className="shrink-0">
-                <img src={item.product.image} alt={item.product.title} loading="lazy" width={96} height={96} className="h-24 w-24 rounded-xl object-cover" />
+                <img
+                  src={item.product.image}
+                  alt={item.product.title}
+                  loading="lazy"
+                  width={96}
+                  height={96}
+                  className="h-20 w-20 rounded-xl object-cover sm:h-24 sm:w-24"
+                />
               </Link>
-              <div className="flex flex-1 flex-col">
+              <div className="flex min-w-0 flex-1 flex-col">
                 <Link to={`/producto/${item.product.id}`} className="hover:underline">
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{item.product.brand}</p>
-                  <h3 className="font-display text-lg font-medium leading-tight line-clamp-1">{item.product.title}</h3>
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                    {item.product.brand}
+                  </p>
+                  <h3 className="break-words font-display text-base font-medium leading-tight sm:text-lg">
+                    {item.product.title}
+                  </h3>
                 </Link>
 
                 {/* Size selector if product has sizes */}
@@ -179,8 +281,8 @@ export default function Carrito() {
                             !isAvailable
                               ? "bg-secondary text-muted-foreground line-through opacity-40"
                               : item.product.selectedSize === size
-                              ? "bg-foreground text-background font-medium"
-                              : "border border-border text-muted-foreground hover:border-foreground"
+                                ? "bg-foreground text-background font-medium"
+                                : "border border-border text-muted-foreground hover:border-foreground"
                           }`}
                           disabled={!isAvailable}
                         >
@@ -191,28 +293,48 @@ export default function Carrito() {
                   </div>
                 )}
 
-                <div className="mt-auto flex items-center justify-between gap-3">
+                <div className="mt-auto flex flex-col items-start gap-2 pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                   <div className="flex items-center gap-1 rounded-full bg-secondary px-1">
-                    <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full" onClick={() => setQty(item.product.id, item.qty - 1)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-11 w-11 rounded-full"
+                      onClick={() => setQty(item.product.id, item.qty - 1)}
+                      aria-label={`Quitar una unidad de ${item.product.title}`}
+                    >
                       <Minus className="h-3.5 w-3.5" />
                     </Button>
                     <span className="w-6 text-center text-sm font-medium">{item.qty}</span>
-                    <Button size="icon" variant="ghost" className="h-7 w-7 rounded-full" onClick={() => setQty(item.product.id, item.qty + 1)}>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-11 w-11 rounded-full"
+                      onClick={() => setQty(item.product.id, item.qty + 1)}
+                      aria-label={`Sumar una unidad de ${item.product.title}`}
+                    >
                       <Plus className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  <span className="font-display font-semibold">{formatARS(item.product.price * item.qty)}</span>
+                  <span className="max-w-full break-words font-display text-sm font-semibold tabular-nums sm:text-base">
+                    {formatARS(item.product.price * item.qty)}
+                  </span>
                 </div>
               </div>
-              <Button size="icon" variant="ghost" onClick={() => remove(item.product.id)} aria-label="Eliminar">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => remove(item.product.id)}
+                aria-label="Eliminar"
+                className="h-11 w-11 shrink-0"
+              >
                 <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
               </Button>
             </motion.li>
           ))}
         </ul>
 
-        <aside className="rounded-2xl bg-card border border-border p-6 h-fit lg:sticky lg:top-24 shadow-soft">
-          <h2 className="font-display text-2xl">Resumen</h2>
+        <aside className="rounded-3xl bg-white border border-white p-6 h-fit lg:sticky lg:top-24 shadow-soft">
+          <h2 className="font-display text-lg font-medium">Resumen del pedido</h2>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Subtotal</dt>
@@ -220,8 +342,10 @@ export default function Carrito() {
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Envío</dt>
-              <dd className={deliveryMethod === "delivery" ? "font-medium" : "text-muted-foreground"}>
-                {deliveryMethod === "delivery" ? formatARS(deliveryPrice) : "Gratis"}
+              <dd
+                className={deliveryMethod === "delivery" ? "font-medium" : "text-muted-foreground"}
+              >
+                {deliveryMethod === "delivery" ? formatARS(effectiveDeliveryPrice) : "Gratis"}
               </dd>
             </div>
           </dl>
@@ -235,7 +359,7 @@ export default function Carrito() {
             size="lg"
             className="mt-6 w-full bg-foreground text-background hover:bg-foreground/90 rounded-full font-medium"
           >
-            Finalizar por WhatsApp
+            Continuar al checkout
           </Button>
           <Button asChild variant="ghost" className="mt-2 w-full rounded-full">
             <Link to="/catalogo">Seguir comprando</Link>
@@ -243,109 +367,119 @@ export default function Carrito() {
         </aside>
       </div>
 
-      {/* Checkout modal — captures name + phone */}
-      <AnimatePresence>
-        {showModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-foreground/40 backdrop-blur-sm px-4"
-            onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 40 }}
-              className="w-full max-w-sm rounded-3xl bg-card border border-border p-6 shadow-elegant"
-            >
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="font-display text-2xl">Tu contacto</h2>
-                <button onClick={() => setShowModal(false)}>
-                  <X className="h-5 w-5 text-muted-foreground" />
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="max-h-[90dvh] max-w-md overflow-y-auto rounded-3xl p-6">
+          <DialogTitle>Checkout</DialogTitle>
+          <DialogDescription>
+            {isDemo
+              ? "Una muestra de cómo comprar en R&E. No se generan pedidos ni cobros."
+              : "Completá tus datos para coordinar tu pedido."}
+          </DialogDescription>
+          <form onSubmit={checkout} className="space-y-4">
+            <div className="flex items-center gap-3 rounded-2xl bg-secondary/70 p-3">
+              <img
+                src={items[0]?.product.image}
+                alt="Tu selección"
+                className="h-12 w-12 rounded-xl object-cover"
+              />
+              <div className="flex-1">
+                <p className="text-xs text-muted-foreground">Tu selección</p>
+                <p className="mt-1 text-sm font-medium">
+                  {items.reduce((sum, item) => sum + item.qty, 0)} prendas
+                </p>
+              </div>
+              <span className="text-sm font-semibold">{formatARS(finalTotal)}</span>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="checkout-name">Tu nombre</Label>
+              <Input
+                required={!isDemo}
+                id="checkout-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="¿Cómo te llamás?"
+                className="rounded-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="checkout-phone">Tu teléfono</Label>
+              <Input
+                required={!isDemo}
+                id="checkout-phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+54 9 11 0000-0000"
+                className="rounded-full"
+              />
+            </div>
+
+            {/* Delivery method selection */}
+            <div className="space-y-2">
+              <Label>Cómo querés recibirlo</Label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod("pickup")}
+                  className={`flex-1 min-h-11 py-2 rounded-full text-sm font-medium transition ${
+                    deliveryMethod === "pickup"
+                      ? "bg-foreground text-background"
+                      : "border border-border text-muted-foreground hover:border-foreground"
+                  }`}
+                >
+                  Retiro Gratis
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod("delivery")}
+                  className={`flex-1 min-h-11 py-2 rounded-full text-sm font-medium transition ${
+                    deliveryMethod === "delivery"
+                      ? "bg-foreground text-background"
+                      : "border border-border text-muted-foreground hover:border-foreground"
+                  }`}
+                >
+                  Envío ({formatARS(effectiveDeliveryPrice)})
                 </button>
               </div>
-              <form onSubmit={checkout} className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Tu nombre</Label>
-                  <Input
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="¿Cómo te llamás?"
-                    className="rounded-full"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Tu WhatsApp</Label>
-                  <Input
-                    required
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+54 9 11 0000-0000"
-                    className="rounded-full"
-                  />
-                </div>
+            </div>
 
-                {/* Delivery method selection */}
-                <div className="space-y-2">
-                  <Label>Cómo querés recibirlo</Label>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setDeliveryMethod("pickup")}
-                      className={`flex-1 py-2 rounded-full text-sm font-medium transition ${
-                        deliveryMethod === "pickup"
-                          ? "bg-foreground text-background"
-                          : "border border-border text-muted-foreground hover:border-foreground"
-                      }`}
-                    >
-                      Retiro Gratis
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeliveryMethod("delivery")}
-                      className={`flex-1 py-2 rounded-full text-sm font-medium transition ${
-                        deliveryMethod === "delivery"
-                          ? "bg-foreground text-background"
-                          : "border border-border text-muted-foreground hover:border-foreground"
-                      }`}
-                    >
-                      Envío ({formatARS(deliveryPrice)})
-                    </button>
-                  </div>
-                </div>
-
-                {/* Location detection for delivery */}
-                {deliveryMethod === "delivery" && (
-                  <div className="space-y-2">
-                    <Button
-                      type="button"
-                      onClick={getLocation}
-                      disabled={loadingLocation}
-                      variant="outline"
-                      className="w-full rounded-full"
-                    >
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {loadingLocation ? "Detectando..." : customerLat ? "✓ Ubicación detectada" : "Detectar mi ubicación"}
-                    </Button>
-                  </div>
-                )}
-
+            <div className="rounded-2xl border border-border/70 p-3 text-xs">
+              <p className="font-medium">Forma de pago</p>
+              <p className="mt-1 text-muted-foreground">
+                A coordinar con el local al confirmar tu pedido.
+              </p>
+            </div>
+            {/* Location detection for delivery */}
+            {deliveryMethod === "delivery" && !isDemo && (
+              <div className="space-y-2">
                 <Button
-                  type="submit"
-                  disabled={sending || (deliveryMethod === "delivery" && !customerLat)}
-                  size="lg"
-                  className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-full font-medium"
+                  type="button"
+                  onClick={getLocation}
+                  disabled={loadingLocation}
+                  variant="outline"
+                  className="w-full rounded-full"
                 >
-                  {sending ? "Enviando..." : "Confirmar y abrir WhatsApp"}
+                  <MapPin className="h-4 w-4 mr-2" />
+                  {loadingLocation
+                    ? "Detectando..."
+                    : customerLat
+                      ? "✓ Ubicación detectada"
+                      : "Detectar mi ubicación"}
                 </Button>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={sending || (!isDemo && deliveryMethod === "delivery" && !customerLat)}
+              size="lg"
+              className="w-full bg-foreground text-background hover:bg-foreground/90 rounded-full font-medium"
+            >
+              {sending ? "Enviando..." : isDemo ? "Confirmar demo" : "Confirmar y coordinar pedido"}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

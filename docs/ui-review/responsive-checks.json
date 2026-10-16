@@ -1,0 +1,270 @@
+[
+  {
+    "route": "/",
+    "active": "Inicio",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 320,
+    "width": 320
+  },
+  {
+    "route": "/catalogo",
+    "active": "Catálogo",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 320,
+    "width": 320
+  },
+  {
+    "route": "/carrito",
+    "active": "Carrito",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 320,
+    "width": 320
+  },
+  {
+    "route": "/contacto",
+    "active": "Contacto",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 320,
+    "width": 320
+  },
+  {
+    "route": "/admin/login",
+    "active": null,
+    "dockLabels": [],
+    "pageWidth": 320,
+    "width": 320
+  },
+  {
+    "route": "/admin/demo",
+    "active": "Resumen",
+    "dockLabels": [
+      "Resumen",
+      "Productos",
+      "Agregar",
+      "Tienda"
+    ],
+    "pageWidth": 320,
+    "width": 320
+  },
+  {
+    "route": "/",
+    "active": "Inicio",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 393,
+    "width": 393
+  },
+  {
+    "route": "/catalogo",
+    "active": "Catálogo",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 393,
+    "width": 393
+  },
+  {
+    "route": "/carrito",
+    "active": "Carrito",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 393,
+    "width": 393
+  },
+  {
+    "route": "/contacto",
+    "active": "Contacto",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 393,
+    "width": 393
+  },
+  {
+    "route": "/admin/login",
+    "active": null,
+    "dockLabels": [],
+    "pageWidth": 393,
+    "width": 393
+  },
+  {
+    "route": "/admin/demo",
+    "active": "Resumen",
+    "dockLabels": [
+      "Resumen",
+      "Productos",
+      "Agregar",
+      "Tienda"
+    ],
+    "pageWidth": 393,
+    "width": 393
+  },
+  {
+    "route": "/",
+    "active": "Inicio",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 430,
+    "width": 430
+  },
+  {
+    "route": "/catalogo",
+    "active": "Catálogo",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 430,
+    "width": 430
+  },
+  {
+    "route": "/carrito",
+    "active": "Carrito",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 430,
+    "width": 430
+  },
+  {
+    "route": "/contacto",
+    "active": "Contacto",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 430,
+    "width": 430
+  },
+  {
+    "route": "/admin/login",
+    "active": null,
+    "dockLabels": [],
+    "pageWidth": 430,
+    "width": 430
+  },
+  {
+    "route": "/admin/demo",
+    "active": "Resumen",
+    "dockLabels": [
+      "Resumen",
+      "Productos",
+      "Agregar",
+      "Tienda"
+    ],
+    "pageWidth": 430,
+    "width": 430
+  },
+  {
+    "route": "/",
+    "active": "Inicio",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 1280,
+    "width": 1280
+  },
+  {
+    "route": "/catalogo",
+    "active": "Catálogo",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 1280,
+    "width": 1280
+  },
+  {
+    "route": "/carrito",
+    "active": "Carrito",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 1280,
+    "width": 1280
+  },
+  {
+    "route": "/contacto",
+    "active": "Contacto",
+    "dockLabels": [
+      "Inicio",
+      "Catálogo",
+      "Contacto",
+      "Carrito"
+    ],
+    "pageWidth": 1280,
+    "width": 1280
+  },
+  {
+    "route": "/admin/login",
+    "active": null,
+    "dockLabels": [],
+    "pageWidth": 1280,
+    "width": 1280
+  },
+  {
+    "route": "/admin/demo",
+    "active": "Resumen",
+    "dockLabels": [
+      "Resumen",
+      "Productos",
+      "Agregar",
+      "Tienda"
+    ],
+    "pageWidth": 1280,
+    "width": 1280
+  }
+]
