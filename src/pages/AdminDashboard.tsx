@@ -11,15 +11,20 @@ export default function AdminDashboard() {
   const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) {
+    void (async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) {
+          navigate("/admin/login", { replace: true });
+          return;
+        }
+        setUserId(data.session.user.id);
+        setUserEmail(data.session.user.email ?? "");
+        setReady(true);
+      } catch {
         navigate("/admin/login", { replace: true });
-        return;
       }
-      setUserId(data.session.user.id);
-      setUserEmail(data.session.user.email ?? "");
-      setReady(true);
-    });
+    })();
   }, [navigate]);
 
   if (!ready) {

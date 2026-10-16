@@ -65,7 +65,9 @@ type Section = AdminSection;
 export default function AdminDemo() {
   const [section, setSection] = useState<Section>("resumen");
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
-  const [stocks, setStocks] = useState(stockById);
+  const [stocks, setStocks] = useState<Record<string, number>>(() =>
+    Object.fromEntries(PRODUCTS.map((product) => [product.id, stockById[product.id] ?? 8])),
+  );
   const photoInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();

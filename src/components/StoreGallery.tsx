@@ -49,7 +49,7 @@ export function StoreGallery() {
     if (el) el.scrollBy({ left: direction * el.clientWidth * 0.8, behavior: "smooth" });
   };
   return (
-    <section className="mt-12 border-t border-black/5 pt-8">
+    <section className="reveal-section mt-12 border-t border-black/5 pt-8">
       <div className="mb-5 flex items-center justify-between">
         <div>
           <p className="text-[10px] uppercase tracking-[.2em] text-muted-foreground">
@@ -92,6 +92,9 @@ export function StoreGallery() {
               src={`/images/gallery/${item.src}`}
               alt={item.alt}
               loading="lazy"
+              decoding="async"
+              width="960"
+              height="1200"
               className="h-full w-full object-cover"
             />
           </button>
@@ -118,6 +121,9 @@ export function StoreGallery() {
             >
               <img
                 loading="lazy"
+                decoding="async"
+                width="960"
+                height="1200"
                 src={`/images/gallery/${item.src}`}
                 alt={item.alt}
                 className="h-full w-full object-cover"

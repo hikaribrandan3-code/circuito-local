@@ -1,13 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ShoppingBag, Check } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { formatARS, type Product } from "@/lib/products";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
 
 export function ProductCard({ product }: { product: Product; index?: number; images?: string[] }) {
+  const navigate = useNavigate();
   const { add } = useCart();
   const [added, setAdded] = useState(false);
+  useEffect(() => {
+    if (!added) return;
+    const timer = window.setTimeout(() => setAdded(false), 1800);
+    return () => window.clearTimeout(timer);
+  }, [added]);
   return (
     <article className="min-w-0">
       <div className="relative">
@@ -20,13 +26,19 @@ export function ProductCard({ product }: { product: Product; index?: number; ima
             alt={product.title}
             loading="lazy"
             decoding="async"
+            width="960"
+            height="1200"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </Link>
         <button
           type="button"
-          aria-label={`Agregar ${product.title} al carrito`}
+          aria-label={`${product.has_sizes ? "Elegir talle de" : "Agregar al carrito:"} ${product.title}`}
           onClick={() => {
+            if (product.has_sizes) {
+              navigate(`/producto/${product.id}`);
+              return;
+            }
             add(product);
             setAdded(true);
             toast.success("Agregado al carrito", { description: product.title });
@@ -42,7 +54,7 @@ export function ProductCard({ product }: { product: Product; index?: number; ima
         </p>
         <Link
           to={`/producto/${product.id}`}
-          className="mt-1 block truncate text-sm font-medium leading-snug"
+          className="mt-1 block min-h-[2.5em] break-words text-sm font-medium leading-snug"
         >
           {product.title}
         </Link>

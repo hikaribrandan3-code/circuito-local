@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, MapPin, Check, ShoppingBag, ArrowRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useStoreProducts } from "@/lib/useStoreProducts";
-import { useCart } from "@/lib/cart";
+import { cartItemKey, useCart } from "@/lib/cart";
 import { formatARS, STORE } from "@/lib/products";
 import { storefrontDb as supabase } from "@/lib/storefrontDb";
 import { toast } from "sonner";
@@ -16,7 +15,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export default function Carrito() {
-  const { items, setQty, remove, total, clear } = useCart();
+  const { items, setQty, setSize, remove, total, clear } = useCart();
   const { products } = useStoreProducts();
   const isDemo = items.some((item) => item.product.demo);
   const [demoConfirmed, setDemoConfirmed] = useState(false);
@@ -154,71 +153,81 @@ export default function Carrito() {
 
   async function checkout(e: React.FormEvent) {
     e.preventDefault();
+    if (items.some((item) => item.product.has_sizes && !item.product.selectedSize)) {
+      toast.error("Elegí un talle para cada prenda antes de continuar.");
+      return;
+    }
     if (isDemo) {
       setShowModal(false);
       setDemoConfirmed(true);
       return;
     }
     setSending(true);
+    try {
+      const orderItems = items.map((i) => ({
+        id: i.product.id,
+        name: i.product.title,
+        qty: i.qty,
+        price: i.product.price,
+        size: i.product.selectedSize ?? null,
+      }));
 
-    const orderItems = items.map((i) => ({
-      id: i.product.id,
-      name: i.product.title,
-      qty: i.qty,
-      price: i.product.price,
-    }));
+      // Find owner's user_id (single owner shop — get first profile)
+      const { data: profiles } = await supabase.from("profiles").select("id,phone").limit(1);
+      const destination = profiles?.[0]?.phone?.replace(/\D/g, "");
+      if (!destination) {
+        toast.error("El contacto de la tienda todavía no está configurado.");
+        setSending(false);
+        return;
+      }
+      const ownerId = profiles?.[0]?.id;
 
-    // Find owner's user_id (single owner shop — get first profile)
-    const { data: profiles } = await supabase.from("profiles").select("id,phone").limit(1);
-    const destination = profiles?.[0]?.phone?.replace(/\D/g, "");
-    if (!destination) {
-      toast.error("El contacto de la tienda todavía no está configurado.");
-      setSending(false);
-      return;
-    }
-    const ownerId = profiles?.[0]?.id;
+      if (ownerId) {
+        const { error: orderError } = await supabase.from("orders").insert({
+          user_id: ownerId,
+          customer_name: name,
+          customer_phone: phone,
+          items: orderItems,
+          total: finalTotal,
+          delivery_method: deliveryMethod,
+          customer_latitude: customerLat,
+          customer_longitude: customerLon,
+        });
+        if (orderError) {
+          console.error("Failed to save order:", orderError);
+          toast.error("No pudimos guardar tu pedido, pero podés seguir por WhatsApp");
+        }
 
-    if (ownerId) {
-      const { error: orderError } = await supabase.from("orders").insert({
-        user_id: ownerId,
-        customer_name: name,
-        customer_phone: phone,
-        items: orderItems,
-        total: finalTotal,
-        delivery_method: deliveryMethod,
-        customer_latitude: customerLat,
-        customer_longitude: customerLon,
-      });
-      if (orderError) {
-        console.error("Failed to save order:", orderError);
-        toast.error("No pudimos guardar tu pedido, pero podés seguir por WhatsApp");
+        const { error: customerError } = await supabase
+          .from("shop_customers")
+          .upsert(
+            { user_id: ownerId, phone, name, updated_at: new Date().toISOString() },
+            { onConflict: "user_id,phone" },
+          );
+        if (customerError) console.error("Failed to upsert customer:", customerError);
       }
 
-      const { error: customerError } = await supabase
-        .from("shop_customers")
-        .upsert(
-          { user_id: ownerId, phone, name, updated_at: new Date().toISOString() },
-          { onConflict: "user_id,phone" },
-        );
-      if (customerError) console.error("Failed to upsert customer:", customerError);
+      const deliveryText =
+        deliveryMethod === "delivery"
+          ? `Envío a domicilio (+${formatARS(effectiveDeliveryPrice)})`
+          : "Retiro en tienda (gratis)";
+
+      const lines = items
+        .map((i) => `• ${i.product.title} x${i.qty} — ${formatARS(i.product.price * i.qty)}`)
+        .join("\n");
+      const text = encodeURIComponent(
+        `Hola ${STORE.name}, soy ${name} (${phone}).\n\nQuiero hacer este pedido:\n\n${lines}\n\n${deliveryText}\n\nTotal: ${formatARS(finalTotal)}`,
+      );
+      window.open(`https://wa.me/${destination}?text=${text}`, "_blank");
+      toast.success("¡Pedido enviado!", { description: "Te esperamos para coordinar el envío." });
+      setSending(false);
+      setShowModal(false);
+      setTimeout(() => clear(), 1500);
+    } catch {
+      toast.error("No pudimos completar el pedido. Intentá de nuevo o contactanos.");
+    } finally {
+      setSending(false);
     }
-
-    const deliveryText =
-      deliveryMethod === "delivery"
-        ? `Envío a domicilio (+${formatARS(effectiveDeliveryPrice)})`
-        : "Retiro en tienda (gratis)";
-
-    const lines = items
-      .map((i) => `• ${i.product.title} x${i.qty} — ${formatARS(i.product.price * i.qty)}`)
-      .join("\n");
-    const text = encodeURIComponent(
-      `Hola ${STORE.name}, soy ${name} (${phone}).\n\nQuiero hacer este pedido:\n\n${lines}\n\n${deliveryText}\n\nTotal: ${formatARS(finalTotal)}`,
-    );
-    window.open(`https://wa.me/${destination}?text=${text}`, "_blank");
-    toast.success("¡Pedido enviado!", { description: "Te esperamos para coordinar el envío." });
-    setSending(false);
-    setShowModal(false);
-    setTimeout(() => clear(), 1500);
   }
 
   return (
@@ -235,12 +244,9 @@ export default function Carrito() {
       )}
       <div className="mt-8 grid lg:grid-cols-[1fr_360px] gap-8">
         <ul className="space-y-3">
-          {items.map((item, i) => (
-            <motion.li
-              key={item.product.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
+          {items.map((item) => (
+            <li
+              key={cartItemKey(item.product)}
               className="flex min-w-0 gap-3 rounded-3xl border border-white bg-white p-3 sm:gap-4 sm:p-5"
             >
               <Link to={`/producto/${item.product.id}`} className="shrink-0">
@@ -266,18 +272,15 @@ export default function Carrito() {
                 {/* Size selector if product has sizes */}
                 {item.product.has_sizes && (
                   <div className="mt-2 flex gap-1 flex-wrap">
-                    {SIZES.map((size) => {
+                    {(item.product.sizes ? Object.keys(item.product.sizes) : SIZES).map((size) => {
                       const isAvailable = item.product.sizes?.[size] !== false;
                       return (
                         <button
                           key={size}
                           onClick={() => {
-                            // Store selected size in cart item
-                            if (item.product.selectedSize !== size) {
-                              item.product.selectedSize = size;
-                            }
+                            setSize(cartItemKey(item.product), size);
                           }}
-                          className={`text-[10px] px-2 py-1 rounded transition ${
+                          className={`min-h-11 min-w-11 text-[10px] px-2 py-1 rounded transition ${
                             !isAvailable
                               ? "bg-secondary text-muted-foreground line-through opacity-40"
                               : item.product.selectedSize === size
@@ -299,7 +302,7 @@ export default function Carrito() {
                       size="icon"
                       variant="ghost"
                       className="h-11 w-11 rounded-full"
-                      onClick={() => setQty(item.product.id, item.qty - 1)}
+                      onClick={() => setQty(cartItemKey(item.product), item.qty - 1)}
                       aria-label={`Quitar una unidad de ${item.product.title}`}
                     >
                       <Minus className="h-3.5 w-3.5" />
@@ -309,7 +312,7 @@ export default function Carrito() {
                       size="icon"
                       variant="ghost"
                       className="h-11 w-11 rounded-full"
-                      onClick={() => setQty(item.product.id, item.qty + 1)}
+                      onClick={() => setQty(cartItemKey(item.product), item.qty + 1)}
                       aria-label={`Sumar una unidad de ${item.product.title}`}
                     >
                       <Plus className="h-3.5 w-3.5" />
@@ -323,13 +326,13 @@ export default function Carrito() {
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => remove(item.product.id)}
+                onClick={() => remove(cartItemKey(item.product))}
                 aria-label="Eliminar"
                 className="h-11 w-11 shrink-0"
               >
                 <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
               </Button>
-            </motion.li>
+            </li>
           ))}
         </ul>
 

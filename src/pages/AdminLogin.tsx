@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Loader2, Mail, LockKeyhole, ArrowRight, ArrowLeft, ArrowUpRight } from "lucide-react";
+import { authConfigured, demoStore } from "@/lib/storeConfig";
 import { useStoreBranding } from "@/lib/useStoreBranding";
 
 // Whitelist — only these emails can access admin
@@ -17,21 +18,34 @@ const ALLOWED_EMAILS = [
 export default function AdminLogin() {
   const navigate = useNavigate();
   const branding = useStoreBranding();
-  const demoAvailable =
-    !import.meta.env.VITE_RE_STORE_OWNER_ID && !import.meta.env.VITE_STORE_OWNER_ID;
+  const demoAvailable = demoStore;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate("/admin", { replace: true });
-    });
+    if (!authConfigured) return;
+    let active = true;
+    void (async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (active && data.session) navigate("/admin", { replace: true });
+      } catch {
+        if (active) toast.error("No pudimos conectar. Intentá de nuevo en un momento.");
+      }
+    })();
+    return () => {
+      active = false;
+    };
   }, [navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!authConfigured) {
+      toast.info("Esta es una demostración. Entrá desde Ver demo del panel.");
+      return;
+    }
 
     // Check whitelist before anything
     const isAllowed = ALLOWED_EMAILS.includes(email.toLowerCase());
@@ -86,6 +100,12 @@ export default function AdminLogin() {
             {mode === "login" ? "Ingresá para administrar tu tienda." : "Creá tu cuenta de dueño."}
           </p>
         </div>
+        {!authConfigured && (
+          <p className="mt-5 text-center text-xs leading-relaxed text-muted-foreground">
+            Explorá el panel de muestra sin una cuenta. El acceso con email se habilita al conectar
+            tu tienda.
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="mt-7 space-y-4">
           <div className="relative">
             <Label htmlFor="email" className="sr-only">
@@ -132,7 +152,7 @@ export default function AdminLogin() {
           </div>
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || !authConfigured}
             className="mt-2 h-14 w-full gap-3 rounded-[14px] bg-black text-base font-medium text-white shadow-none hover:bg-black/85"
           >
             {loading ? <Loader2 size={18} className="animate-spin" /> : null}

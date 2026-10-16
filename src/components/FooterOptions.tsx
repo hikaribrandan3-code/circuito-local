@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { LockKeyhole, Instagram, ArrowUpRight } from "lucide-react";
+import { adminEntry } from "@/lib/storeConfig";
 import { STORE } from "@/lib/products";
 export const FooterOption1 = () => (
   <footer className="mx-auto mt-7 w-full max-w-7xl px-5 pb-3 pt-3 lg:px-8">
@@ -70,7 +71,7 @@ export const FooterOption1 = () => (
       <div className="ml-auto flex items-center gap-1">
         <span>Córdoba, Argentina.</span>
         <Link
-          to="/admin/login"
+          to={adminEntry}
           aria-label="Acceso del propietario"
           className="grid h-11 w-11 place-items-center rounded-full text-black/45 hover:bg-black/5 hover:text-black"
         >

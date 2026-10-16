@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { storefrontDb as supabase } from "@/lib/storefrontDb";
 import { CATEGORIES, PRODUCTS, STORE, type Product } from "./products";
 
 export function useStoreProducts() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>(PRODUCTS);
-  const [categories, setCategories] = useState(CATEGORIES);
+  const [categories, setCategories] = useState(
+    CATEGORIES.filter((category) => PRODUCTS.some((product) => product.category === category.id)),
+  );
   useEffect(() => {
     const ownerId = import.meta.env.VITE_RE_STORE_OWNER_ID;
     if (!ownerId) {
@@ -19,6 +20,7 @@ export function useStoreProducts() {
     }, 6000);
     async function load() {
       try {
+        const { storefrontDb: supabase } = await import("@/lib/storefrontDb");
         const [items, cats, images] = await Promise.all([
           supabase.from("items").select("*").eq("user_id", ownerId).abortSignal(controller.signal),
           supabase
@@ -52,6 +54,8 @@ export function useStoreProducts() {
             allImages,
             description: item.description ?? "Descubrí esta prenda de nuestra colección.",
             specs: [],
+            has_sizes: item.has_sizes,
+            sizes: item.sizes as Record<string, boolean> | undefined,
           };
         });
         setProducts(mapped);

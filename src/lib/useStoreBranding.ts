@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { storefrontDb } from "@/lib/storefrontDb";
 import { STORE } from "@/lib/products";
 export function useStoreBranding(ownerIdOverride?: string) {
   const [branding, setBranding] = useState({
@@ -15,6 +14,7 @@ export function useStoreBranding(ownerIdOverride?: string) {
     let active = true;
     void (async () => {
       try {
+        const { storefrontDb } = await import("@/lib/storefrontDb");
         const { data } = await storefrontDb
           .from("profiles")
           .select("contact_info,logo_url")

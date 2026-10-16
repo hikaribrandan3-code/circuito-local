@@ -8,6 +8,7 @@ export default function Catalogo() {
   const { products, categories, isDemo } = useStoreProducts();
   const [params, setParams] = useSearchParams();
   const query = params.get("q") ?? "";
+  const sort = params.get("sort") ?? "featured";
   const category = params.get("cat") ?? "";
   const update = (key: string, value: string) => {
     setParams(
@@ -22,12 +23,16 @@ export default function Catalogo() {
   };
   const filtered = useMemo(
     () =>
-      products.filter(
-        (product) =>
-          (!category || product.category === category) &&
-          product.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
-      ),
-    [products, category, query],
+      products
+        .filter(
+          (product) =>
+            (!category || product.category === category) &&
+            product.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()),
+        )
+        .sort((a, b) =>
+          sort === "price-up" ? a.price - b.price : sort === "price-down" ? b.price - a.price : 0,
+        ),
+    [products, category, query, sort],
   );
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
@@ -70,9 +75,24 @@ export default function Catalogo() {
           </button>
         ))}
       </div>
-      <p className="mb-5 text-xs text-muted-foreground">
-        {filtered.length} prendas{isDemo ? " · precios ilustrativos para la demo" : ""}
-      </p>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <p role="status" className="text-xs text-muted-foreground">
+          {filtered.length} prendas{isDemo ? " · precios de muestra" : ""}
+        </p>
+        <label className="flex items-center gap-2 text-xs text-muted-foreground">
+          Ordenar
+          <select
+            aria-label="Ordenar prendas"
+            value={sort}
+            onChange={(event) => update("sort", event.target.value)}
+            className="min-h-11 max-w-full rounded-xl border border-black/10 bg-white px-3 text-xs text-black"
+          >
+            <option value="featured">Destacados</option>
+            <option value="price-up">Menor precio</option>
+            <option value="price-down">Mayor precio</option>
+          </select>
+        </label>
+      </div>
       {filtered.length ? (
         <div className="grid grid-cols-2 gap-x-3 gap-y-4 sm:gap-x-5 lg:grid-cols-4">
           {filtered.map((product) => (

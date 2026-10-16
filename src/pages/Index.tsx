@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Shirt, ShoppingBag } from "lucide-react";
+import { ArrowRight, Shirt } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { ModelLookbook } from "@/components/ModelLookbook";
 import { StoreGallery } from "@/components/StoreGallery";
@@ -9,6 +9,30 @@ import { useStoreProducts } from "@/lib/useStoreProducts";
 export default function Index() {
   const { products, categories, isDemo } = useStoreProducts();
   const [category, setCategory] = useState("");
+  useEffect(() => {
+    if (
+      !window.IntersectionObserver ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute("data-visible", "true");
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.05, rootMargin: "0px 0px 60px" },
+    );
+    document.querySelectorAll(".reveal-section").forEach((section) => {
+      if (section.getBoundingClientRect().top > window.innerHeight)
+        section.setAttribute("data-reveal", "true");
+      observer.observe(section);
+    });
+    return () => observer.disconnect();
+  }, []);
   const selected = products.filter((product) => !category || product.category === category);
   return (
     <div className="mx-auto max-w-7xl px-4 pb-4 lg:px-8">
@@ -32,7 +56,7 @@ export default function Index() {
         <div className="hero-image">
           <img
             src="/images/hero-editorial-v2.webp"
-            alt="Remeras, bermuda y gorra R&E en tonos negros sobre una mesa de piedra"
+            alt="Selección de remeras, bermuda y gorra de estilo urbano"
             width="1536"
             height="1024"
             fetchPriority="high"
@@ -41,17 +65,17 @@ export default function Index() {
       </section>
       <nav
         aria-label="Destacados de la colección"
-        className="category-strip -mx-4 grid grid-cols-3 divide-x divide-black/25 bg-white/50 py-5 lg:-mx-8"
+        className="category-strip -mx-4 grid grid-cols-3 divide-x divide-black/20 bg-white/50 py-3 lg:-mx-8"
       >
         <Link to="/catalogo?q=remera">
-          <Shirt size={28} />
+          <Shirt size={22} strokeWidth={1.6} />
           <strong>REMERAS</strong>
           <small>BÁSICAS Y ESTAMPADAS</small>
         </Link>
         <Link to="/catalogo?cat=shorts">
           <svg
-            width="28"
-            height="28"
+            width="22"
+            height="22"
             viewBox="0 0 32 32"
             fill="none"
             stroke="currentColor"
@@ -66,8 +90,8 @@ export default function Index() {
         </Link>
         <Link to="/catalogo?cat=accesorios">
           <svg
-            width="28"
-            height="28"
+            width="22"
+            height="22"
             viewBox="0 0 32 32"
             fill="none"
             stroke="currentColor"
@@ -81,6 +105,9 @@ export default function Index() {
           <small>COMPLETÁ TU LOOK</small>
         </Link>
       </nav>
+      <p className="py-3 text-center text-[10px] tracking-wide text-muted-foreground">
+        Ventas minoristas y mayoristas · Córdoba Capital
+      </p>
       <ModelLookbook />
       <div
         className="store-gallery-track mt-6 flex gap-2 overflow-x-auto pb-2"
@@ -93,13 +120,13 @@ export default function Index() {
             type="button"
             aria-pressed={category === cat.id}
             onClick={() => setCategory(cat.id)}
-            className={`shrink-0 rounded-full px-5 py-2.5 text-xs font-medium transition ${category === cat.id ? "bg-black text-white" : "border border-white bg-white/80 text-foreground hover:bg-white"}`}
+            className={`min-h-11 shrink-0 rounded-full px-5 py-2.5 text-xs font-medium transition ${category === cat.id ? "bg-black text-white" : "border border-white bg-white/80 text-foreground hover:bg-white"}`}
           >
             {cat.label}
           </button>
         ))}
       </div>
-      <section className="mt-6">
+      <section className="reveal-section mt-6">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-lg font-medium">
             {category ? categories.find((cat) => cat.id === category)?.label : "Nuevos favoritos"}

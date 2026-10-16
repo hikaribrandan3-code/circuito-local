@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCart } from "@/lib/cart";
-import { CATEGORIES, STORE } from "@/lib/products";
+import { useStoreProducts } from "@/lib/useStoreProducts";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Header() {
+  const { categories } = useStoreProducts();
   const { count } = useCart();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
@@ -41,7 +42,7 @@ export function Header() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="glass-strong">
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <DropdownMenuItem key={c.id} asChild>
                   <Link to={`/catalogo?cat=${c.id}`}>{c.label}</Link>
                 </DropdownMenuItem>
@@ -87,7 +88,7 @@ export function Header() {
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="lg:hidden">
-              <Button variant="ghost" size="icon" className="h-11 w-11">
+              <Button variant="ghost" size="icon" aria-label="Abrir menú" className="h-11 w-11">
                 <Menu className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -98,7 +99,7 @@ export function Header() {
               <DropdownMenuItem asChild>
                 <Link to="/contacto">Contacto</Link>
               </DropdownMenuItem>
-              {CATEGORIES.map((c) => (
+              {categories.map((c) => (
                 <DropdownMenuItem key={c.id} asChild>
                   <Link to={`/catalogo?cat=${c.id}`}>{c.label}</Link>
                 </DropdownMenuItem>
